@@ -5,14 +5,12 @@ import {
   SidebarProvider,
 } from "@workspace/ui/components/sidebar"
 import { Button } from "@workspace/ui/components/button"
-import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
-import { Menu, Bell, Sparkles, Plus, Clock, Trophy } from "lucide-react"
+import { Sparkles, Plus, Clock, Trophy } from "lucide-react"
 import { useState, useEffect } from "react"
-import { cn } from "@workspace/ui/lib/utils"
 
 import Header from "../Header/Header"
 
@@ -37,7 +35,7 @@ export default function Page() {
         }
       >
         <AppSidebar variant="inset" />
-        <SidebarInset>
+        <SidebarInset className="animate-in fade-in duration-500 ease-in-out">
 
           <Header loading={loading} />
 
@@ -93,7 +91,7 @@ export default function Page() {
                 )}
               </div>
 
-              <div className="flex overflow-x-auto gap-4 pb-2 -mx-4 px-4 snap-x">
+              <div className="flex overflow-x-auto gap-4 pb-2 -mx-4 px-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {loading ? (
                   <>
                     <Skeleton className="h-[200px] w-[250px] shrink-0" />
@@ -176,13 +174,13 @@ export default function Page() {
                   <Skeleton className="h-[120px] w-full" />
                 ) : (
                   <Card>
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    <CardContent className="">
+                      <div className="flex justify-between items-start ">
+                        <div className="h-11 w-11 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
                           <Trophy className="h-6 w-6" />
                         </div>
                         <div className="text-right">
-                          <div className="text-xl font-bold">$12,400</div>
+                          <div className="text-xl font-semibold">$12,400</div>
                           <div className="text-xs text-muted-foreground uppercase">Volume Today</div>
                         </div>
                       </div>
@@ -195,7 +193,7 @@ export default function Page() {
           </main>
 
           {!loading && (
-            <Button size="icon" className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-lg z-40">
+            <Button size="icon" className="fixed bottom-24 right-6 h-11 w-11 rounded-full shadow-lg z-40">
               <Plus className="h-6 w-6" />
             </Button>
           )}

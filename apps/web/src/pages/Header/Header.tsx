@@ -1,4 +1,3 @@
-import React from 'react'
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Button } from "@workspace/ui/components/button"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
@@ -6,9 +5,10 @@ import { Bell } from "lucide-react"
 
 interface HeaderProps {
   loading?: boolean;
+  title?: string;
 }
 
-const Header = ({ loading = false }: HeaderProps) => {
+const Header = ({ loading = false, title = "ANYBET" }: HeaderProps) => {
   return (
     <header className="flex items-center justify-between px-4 py-4 border-b">
       {loading ? (
@@ -20,7 +20,7 @@ const Header = ({ loading = false }: HeaderProps) => {
       {loading ? (
         <Skeleton className="h-6 w-24" />
       ) : (
-        <span className="text-lg font-semibold">ANYBET</span>
+        <span className="text-lg font-semibold">{title}</span>
       )}
 
       {loading ? (
