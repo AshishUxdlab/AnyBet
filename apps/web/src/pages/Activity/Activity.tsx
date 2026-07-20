@@ -64,8 +64,8 @@ export default function Activity() {
                         ) : (
                             <Tabs defaultValue="global" className="w-full space-y-6">
                                 <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="global">GLOBAL</TabsTrigger>
-                                    <TabsTrigger value="friends">FRIENDS</TabsTrigger>
+                                    <TabsTrigger value="global" className="text-sm font-semibold tracking-wide">GLOBAL</TabsTrigger>
+                                    <TabsTrigger value="friends" className="text-sm font-semibold tracking-wide">FRIENDS</TabsTrigger>
                                 </TabsList>
 
                                 <div className="space-y-6">
@@ -78,14 +78,14 @@ export default function Activity() {
                                                     <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="AI_MASTER" />
                                                     <AvatarFallback>AI</AvatarFallback>
                                                 </Avatar>
-                                                <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-muted border border-border flex items-center justify-center rounded-full text-[10px] font-bold">2</div>
+                                                <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-muted border border-border flex items-center justify-center rounded-full text-xs font-bold">2</div>
                                             </div>
-                                            <div className="space-y-0.5">
-                                                <div className="text-[10px] font-bold truncate max-w-[80px]">AI_MASTER</div>
-                                                <div className="text-[10px] font-semibold text-primary">$38,200</div>
+                                            <div className="space-y-1">
+                                                <div className="text-xs font-semibold truncate max-w-[90px] leading-none">AI_MASTER</div>
+                                                <div className="text-xs font-bold text-primary leading-none">$38,200</div>
                                             </div>
                                             <div className="w-full bg-secondary/30 rounded-t-lg h-16 flex items-center justify-center border-t border-x border-border">
-                                                <span className="text-muted-foreground text-xs font-bold">2nd</span>
+                                                <span className="text-muted-foreground text-sm font-bold leading-none">2nd</span>
                                             </div>
                                         </div>
 
@@ -101,9 +101,9 @@ export default function Activity() {
                                                 </Avatar>
                                                 <div className="absolute -bottom-1 -right-1 h-6 w-6 bg-primary text-primary-foreground flex items-center justify-center rounded-full text-xs font-extrabold border border-background">1</div>
                                             </div>
-                                            <div className="space-y-0.5">
-                                                <div className="text-xs font-bold truncate max-w-[90px]">CRYPTOKING</div>
-                                                <div className="text-xs font-extrabold text-primary">$42,500</div>
+                                            <div className="space-y-1">
+                                                <div className="text-sm font-bold truncate max-w-[100px] leading-none">CRYPTOKING</div>
+                                                <div className="text-sm font-extrabold text-primary leading-none">$42,500</div>
                                             </div>
                                             <div className="w-full bg-primary/10 rounded-t-lg h-24 flex items-center justify-center border-t border-x border-primary/20">
                                                 <Trophy className="h-6 w-6 text-primary" />
@@ -117,14 +117,14 @@ export default function Activity() {
                                                     <AvatarImage src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100&auto=format&fit=crop&q=80" alt="BETRUNNER" />
                                                     <AvatarFallback>BR</AvatarFallback>
                                                 </Avatar>
-                                                <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-muted border border-border flex items-center justify-center rounded-full text-[10px] font-bold">3</div>
+                                                <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-muted border border-border flex items-center justify-center rounded-full text-xs font-bold">3</div>
                                             </div>
-                                            <div className="space-y-0.5">
-                                                <div className="text-[10px] font-bold truncate max-w-[80px]">BETRUNNER</div>
-                                                <div className="text-[10px] font-semibold text-primary">$31,900</div>
+                                            <div className="space-y-1">
+                                                <div className="text-xs font-semibold truncate max-w-[90px] leading-none">BETRUNNER</div>
+                                                <div className="text-xs font-bold text-primary leading-none">$31,900</div>
                                             </div>
                                             <div className="w-full bg-secondary/30 rounded-t-lg h-12 flex items-center justify-center border-t border-x border-border">
-                                                <span className="text-muted-foreground text-[10px] font-bold">3rd</span>
+                                                <span className="text-muted-foreground text-sm font-bold leading-none">3rd</span>
                                             </div>
                                         </div>
                                     </div>
@@ -139,9 +139,9 @@ export default function Activity() {
                                                         <AvatarImage src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80" />
                                                         <AvatarFallback>CK</AvatarFallback>
                                                     </Avatar>
-                                                    <span className="text-sm font-semibold">CyberKnight</span>
+                                                    <span className="text-sm font-semibold leading-none">CyberKnight</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-muted-foreground">$28,400</span>
+                                                <span className="text-sm font-bold text-foreground leading-none">$28,400</span>
                                             </CardContent>
                                         </Card>
 
@@ -153,9 +153,9 @@ export default function Activity() {
                                                         <AvatarImage src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&auto=format&fit=crop&q=80" />
                                                         <AvatarFallback>MS</AvatarFallback>
                                                     </Avatar>
-                                                    <span className="text-sm font-semibold">MoonShot</span>
+                                                    <span className="text-sm font-semibold leading-none">MoonShot</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-muted-foreground">$25,120</span>
+                                                <span className="text-sm font-bold text-foreground leading-none">$25,120</span>
                                             </CardContent>
                                         </Card>
 
@@ -167,9 +167,9 @@ export default function Activity() {
                                                         <AvatarImage src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80" />
                                                         <AvatarFallback>NG</AvatarFallback>
                                                     </Avatar>
-                                                    <span className="text-sm font-semibold">Nova_Gamer</span>
+                                                    <span className="text-sm font-semibold leading-none">Nova_Gamer</span>
                                                 </div>
-                                                <span className="text-sm font-bold text-muted-foreground">$22,900</span>
+                                                <span className="text-sm font-bold text-foreground leading-none">$22,900</span>
                                             </CardContent>
                                         </Card>
                                     </div>
@@ -189,11 +189,11 @@ export default function Activity() {
                                             <AvatarFallback>P1</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <span className="text-[9px] uppercase font-bold text-primary">Your Rank</span>
-                                            <div className="text-xs font-bold text-foreground">#128 Player One</div>
+                                            <span className="text-xs uppercase font-semibold text-primary tracking-wide leading-none">Your Rank</span>
+                                            <div className="text-sm font-bold text-foreground leading-none">#128 Player One</div>
                                         </div>
                                     </div>
-                                    <span className="text-xs font-extrabold text-primary">$15.4k</span>
+                                    <span className="text-sm font-extrabold text-primary leading-none">$15.4k</span>
                                 </CardContent>
                             </Card>
                         </div>
