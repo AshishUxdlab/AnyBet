@@ -21,6 +21,9 @@ import {
     Sparkles,
     Lock
 } from "lucide-react"
+import { onAuthStateChanged, updateProfile, type User } from "firebase/auth"
+import { doc, getDoc, setDoc } from "firebase/firestore"
+import { auth, db } from "@/Firebase/firebase"
 import Header from "../Header/Header"
 
 // Sample avatar presets for quick selection
@@ -37,42 +40,100 @@ export default function EditProfile() {
     const [loading, setLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
     const [savedSuccess, setSavedSuccess] = useState(false)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Form fields
     const [profileImage, setProfileImage] = useState(AVATAR_PRESETS[0])
-    const [fullName, setFullName] = useState("Player One")
-    const [username, setUsername] = useState("playerone")
-    const [bio, setBio] = useState("Elite Tier Member - Passionate Gamer & Competitor")
-    const [email] = useState("playerone@anybet.io")
-    const [phone, setPhone] = useState("+1 (555) 234-5678")
+    const [fullName, setFullName] = useState("")
+    const [username, setUsername] = useState("")
+    const [bio, setBio] = useState("")
+    const [email, setEmail] = useState("")
+    const [phone, setPhone] = useState("")
 
     useEffect(() => {
-        const timer = setTimeout(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                setCurrentUser(user)
+                setEmail(user.email || "")
+                setProfileImage(user.photoURL || AVATAR_PRESETS[0])
+                setFullName(user.displayName || "")
+
+                try {
+                    const userDocRef = doc(db, "users", user.uid)
+                    const userSnap = await getDoc(userDocRef)
+                    if (userSnap.exists()) {
+                        const data = userSnap.data()
+                        if (data.name) setFullName(data.name)
+                        if (data.username) setUsername(data.username)
+                        if (data.bio) setBio(data.bio)
+                        if (data.phone) setPhone(data.phone)
+                        if (data.photoURL) setProfileImage(data.photoURL)
+                    } else if (user.email) {
+                        setUsername(user.email.split("@")[0])
+                    }
+                } catch (err) {
+                    console.warn("Could not load user doc from Firestore:", err)
+                }
+            } else {
+                navigate("/login")
+            }
             setLoading(false)
-        }, 600)
-        return () => clearTimeout(timer)
-    }, [])
+        })
+
+        return () => unsubscribe()
+    }, [navigate])
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
-            const imageUrl = URL.createObjectURL(file)
-            setProfileImage(imageUrl)
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                if (typeof reader.result === "string") {
+                    setProfileImage(reader.result)
+                }
+            }
+            reader.readAsDataURL(file)
         }
     }
 
-    const handleSave = (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!currentUser) return
+
         setIsSaving(true)
-        setTimeout(() => {
-            setIsSaving(false)
+        try {
+            // Only pass photoURL to Firebase Auth if it's a short URL (Auth photoURL has max length limits)
+            const isShortPhotoUrl = profileImage && profileImage.length < 2000
+            await updateProfile(currentUser, {
+                displayName: fullName,
+                ...(isShortPhotoUrl ? { photoURL: profileImage } : {})
+            })
+
+            // Update Firestore Document (Firestore handles Base64 data URLs without length issues)
+            await setDoc(doc(db, "users", currentUser.uid), {
+                uid: currentUser.uid,
+                name: fullName,
+                username: username,
+                bio: bio,
+                email: email,
+                phone: phone,
+                photoURL: profileImage,
+                updatedAt: new Date().toISOString()
+            }, { merge: true })
+
             setSavedSuccess(true)
             setTimeout(() => {
                 navigate("/profile")
             }, 800)
-        }, 800)
+        } catch (err) {
+            console.error("Failed to update profile:", err)
+        } finally {
+            setIsSaving(false)
+        }
     }
+
+    const initials = fullName ? fullName.substring(0, 2).toUpperCase() : "U"
 
     return (
         <>
@@ -121,7 +182,7 @@ export default function EditProfile() {
                                         <div className="relative">
                                             <Avatar className="h-20 w-20 border border-border shadow-sm">
                                                 <AvatarImage src={profileImage} alt={fullName} />
-                                                <AvatarFallback className="text-base font-bold">P1</AvatarFallback>
+                                                <AvatarFallback className="text-base font-bold">{initials}</AvatarFallback>
                                             </Avatar>
                                             <button
                                                 type="button"
@@ -313,3 +374,4 @@ export default function EditProfile() {
         </>
     )
 }
+

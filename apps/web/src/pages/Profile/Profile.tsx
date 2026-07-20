@@ -22,15 +22,28 @@ import {
     Award,
     CheckCircle,
     Pencil,
-    LogOut
+    LogOut,
+    LogIn
 } from "lucide-react"
-import { signOut } from "firebase/auth"
-import { auth } from "@/Firebase/firebase"
+import { signOut, onAuthStateChanged, type User } from "firebase/auth"
+import { doc, getDoc } from "firebase/firestore"
+import { auth, db } from "@/Firebase/firebase"
 import Header from "../Header/Header"
+
+interface UserProfileData {
+    name?: string
+    username?: string
+    email?: string
+    phone?: string
+    bio?: string
+    photoURL?: string
+}
 
 export default function Profile() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
+    const [currentUser, setCurrentUser] = useState<User | null>(null)
+    const [profileData, setProfileData] = useState<UserProfileData | null>(null)
 
     const handleLogout = async () => {
         try {
@@ -42,11 +55,48 @@ export default function Profile() {
     }
 
     useEffect(() => {
-        const timer = setTimeout(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                setCurrentUser(user)
+                try {
+                    const userDocRef = doc(db, "users", user.uid)
+                    const userSnap = await getDoc(userDocRef)
+                    if (userSnap.exists()) {
+                        setProfileData(userSnap.data() as UserProfileData)
+                    } else {
+                        setProfileData({
+                            name: user.displayName || "Player One",
+                            email: user.email || "",
+                            username: user.email ? user.email.split("@")[0] : "playerone",
+                            photoURL: user.photoURL || undefined
+                        })
+                    }
+                } catch (err) {
+                    console.warn("Could not fetch user from Firestore:", err)
+                    setProfileData({
+                        name: user.displayName || "Player One",
+                        email: user.email || "",
+                        username: user.email ? user.email.split("@")[0] : "playerone",
+                        photoURL: user.photoURL || undefined
+                    })
+                }
+            } else {
+                setCurrentUser(null)
+                setProfileData(null)
+            }
             setLoading(false)
-        }, 1500)
-        return () => clearTimeout(timer)
+        })
+
+        return () => unsubscribe()
     }, [])
+
+    const displayName = profileData?.name || currentUser?.displayName || (currentUser ? "Logged User" : "Guest User")
+    const usernameTag = profileData?.username ? `@${profileData.username}` : (profileData?.email || (currentUser ? "Member" : "Not Logged In"))
+    const rawAvatar = profileData?.photoURL || currentUser?.photoURL
+    const avatarUrl = (rawAvatar && !rawAvatar.startsWith("blob:")) 
+        ? rawAvatar 
+        : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"
+    const initials = displayName ? displayName.substring(0, 2).toUpperCase() : "GU"
 
     return (
         <>
@@ -90,31 +140,33 @@ export default function Profile() {
                             <div className="space-y-6">
                                 {/* Profile Info */}
                                 <div className="flex flex-col items-center text-center space-y-3">
-                                    <div className="relative group cursor-pointer" onClick={() => navigate("/profile/edit")}>
+                                    <div className="relative group cursor-pointer" onClick={() => navigate(currentUser ? "/profile/edit" : "/login")}>
                                         <Avatar className="h-24 w-24 border-2 border-primary/20 transition-transform duration-200 group-hover:scale-105">
-                                            <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Player One" />
-                                            <AvatarFallback>P1</AvatarFallback>
+                                            <AvatarImage src={avatarUrl} alt={displayName} />
+                                            <AvatarFallback>{initials}</AvatarFallback>
                                         </Avatar>
                                         <Badge className="absolute bottom-0 right-0 bg-primary hover:bg-primary text-primary-foreground font-bold px-1.5 py-0.5 text-[9px] uppercase tracking-wider shadow-sm">
-                                            PRO
+                                            {currentUser ? "PRO" : "GUEST"}
                                         </Badge>
                                         {/* Pencil Edit Icon Button */}
-                                        <button
-                                            type="button"
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                navigate("/profile/edit")
-                                            }}
-                                            className="absolute top-0 right-0 p-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring border border-background"
-                                            title="Edit Profile"
-                                        >
-                                            <Pencil className="h-3.5 w-3.5" />
-                                        </button>
+                                        {currentUser && (
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    navigate("/profile/edit")
+                                                }}
+                                                className="absolute top-0 right-0 p-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring border border-background"
+                                                title="Edit Profile"
+                                            >
+                                                <Pencil className="h-3.5 w-3.5" />
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="space-y-1">
-                                        <h2 className="text-xl font-bold tracking-tight">Player One</h2>
+                                        <h2 className="text-xl font-bold tracking-tight">{displayName}</h2>
                                         <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                                            Elite Tier Member
+                                            {usernameTag}
                                         </div>
                                     </div>
                                 </div>
@@ -174,13 +226,15 @@ export default function Profile() {
                                 {/* Settings Menu */}
                                 <Card>
                                     <CardContent className="p-0 flex flex-col divide-y divide-border">
-                                        <Button variant="ghost" onClick={() => navigate("/profile/edit")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
-                                            <div className="flex items-center gap-3">
-                                                <Settings className="h-4 w-4 text-muted-foreground" />
-                                                <span className="text-sm font-medium">Account Settings</span>
-                                            </div>
-                                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                                        </Button>
+                                        {currentUser && (
+                                            <Button variant="ghost" onClick={() => navigate("/profile/edit")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
+                                                <div className="flex items-center gap-3">
+                                                    <Settings className="h-4 w-4 text-muted-foreground" />
+                                                    <span className="text-sm font-medium">Account Settings</span>
+                                                </div>
+                                                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                            </Button>
+                                        )}
 
                                         <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
                                             <div className="flex items-center gap-3">
@@ -206,13 +260,23 @@ export default function Profile() {
                                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                         </Button>
 
-                                        <Button variant="ghost" onClick={handleLogout} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-destructive border-none hover:bg-destructive/10 hover:text-destructive">
-                                            <div className="flex items-center gap-3">
-                                                <LogOut className="h-4 w-4 text-destructive" />
-                                                <span className="text-sm font-semibold">Log Out</span>
-                                            </div>
-                                            <ChevronRight className="h-4 w-4 text-destructive/50" />
-                                        </Button>
+                                        {currentUser ? (
+                                            <Button variant="ghost" onClick={handleLogout} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-destructive border-none hover:bg-destructive/10 hover:text-destructive">
+                                                <div className="flex items-center gap-3">
+                                                    <LogOut className="h-4 w-4 text-destructive" />
+                                                    <span className="text-sm font-semibold">Log Out</span>
+                                                </div>
+                                                <ChevronRight className="h-4 w-4 text-destructive/50" />
+                                            </Button>
+                                        ) : (
+                                            <Button variant="ghost" onClick={() => navigate("/login")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-primary border-none hover:bg-primary/10 hover:text-primary">
+                                                <div className="flex items-center gap-3">
+                                                    <LogIn className="h-4 w-4 text-primary" />
+                                                    <span className="text-sm font-semibold">Log In / Sign Up</span>
+                                                </div>
+                                                <ChevronRight className="h-4 w-4 text-primary/50" />
+                                            </Button>
+                                        )}
                                     </CardContent>
                                 </Card>
                             </div>
@@ -225,3 +289,4 @@ export default function Profile() {
         </>
     )
 }
+
