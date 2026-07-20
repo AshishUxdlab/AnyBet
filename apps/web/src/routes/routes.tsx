@@ -7,11 +7,21 @@ import WalletPage from "@/pages/Wallets/Wallet"
 import ProfilePage from "@/pages/Profile/Profile"
 import EditProfilePage from "@/pages/Profile/EditProfile"
 import ActivityPage from "@/pages/Activity/Activity"
+import LoginPage from "@/pages/Login/Login"
+import SignUpPage from "@/pages/SignUp/SignUp"
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <DashboardPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/signup",
+    element: <SignUpPage />,
   },
   {
     path: "/dashboard",

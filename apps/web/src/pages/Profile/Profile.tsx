@@ -21,13 +21,25 @@ import {
     Flame,
     Award,
     CheckCircle,
-    Pencil
+    Pencil,
+    LogOut
 } from "lucide-react"
+import { signOut } from "firebase/auth"
+import { auth } from "@/Firebase/firebase"
 import Header from "../Header/Header"
 
 export default function Profile() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth)
+            navigate("/login")
+        } catch (err) {
+            console.error("Logout error:", err)
+        }
+    }
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -192,6 +204,14 @@ export default function Profile() {
                                                 <span className="text-sm font-medium">Help & Support</span>
                                             </div>
                                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                        </Button>
+
+                                        <Button variant="ghost" onClick={handleLogout} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-destructive border-none hover:bg-destructive/10 hover:text-destructive">
+                                            <div className="flex items-center gap-3">
+                                                <LogOut className="h-4 w-4 text-destructive" />
+                                                <span className="text-sm font-semibold">Log Out</span>
+                                            </div>
+                                            <ChevronRight className="h-4 w-4 text-destructive/50" />
                                         </Button>
                                     </CardContent>
                                 </Card>
