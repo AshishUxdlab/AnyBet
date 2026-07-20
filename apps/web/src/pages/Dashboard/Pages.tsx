@@ -11,10 +11,12 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { Sparkles, Plus, Clock, Trophy } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 
 import Header from "../Header/Header"
 
 export default function Page() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -35,11 +37,11 @@ export default function Page() {
         }
       >
         <AppSidebar variant="inset" />
-        <SidebarInset className="animate-in fade-in duration-500 ease-in-out">
+        <SidebarInset className="animate-in fade-in duration-500 ease-in-out w-full overflow-x-hidden">
 
           <Header loading={loading} />
 
-          <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4 pb-24">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 space-y-4 pb-24 w-full">
 
             <section className="">
               {loading ? (
@@ -99,7 +101,7 @@ export default function Page() {
                   </>
                 ) : (
                   <>
-                    <Card className="w-[250px] shrink-0 snap-start flex flex-col">
+                    <Card onClick={() => navigate("/challenges/create")} className="w-[250px] shrink-0 snap-start flex flex-col cursor-pointer hover:border-primary/50 transition-colors">
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                           <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
@@ -130,7 +132,7 @@ export default function Page() {
                       </CardContent>
                     </Card>
 
-                    <Card className="w-[250px] shrink-0 snap-start flex flex-col">
+                    <Card onClick={() => navigate("/challenges/create")} className="w-[250px] shrink-0 snap-start flex flex-col cursor-pointer hover:border-primary/50 transition-colors">
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                           <span className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-1 text-xs font-medium text-secondary">
@@ -173,7 +175,7 @@ export default function Page() {
                 {loading ? (
                   <Skeleton className="h-[120px] w-full" />
                 ) : (
-                  <Card>
+                  <Card onClick={() => navigate("/challenges/create")} className="cursor-pointer hover:border-primary/50 transition-colors">
                     <CardContent className="">
                       <div className="flex justify-between items-start ">
                         <div className="h-11 w-11 rounded-lg bg-primary/20 flex items-center justify-center text-primary">

@@ -52,7 +52,7 @@ export default function JoinChallenge() {
                         </Button>
                     </header>
 
-                    <main className="flex-1 overflow-auto p-4 md:p-6 space-y-6 pb-24 max-w-md mx-auto w-full">
+                    <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 space-y-6 pb-24 max-w-md mx-auto w-full">
                         {loading ? (
                             <div className="space-y-4 flex flex-col items-center">
                                 <Skeleton className="h-6 w-32 rounded-full" />
@@ -107,7 +107,7 @@ export default function JoinChallenge() {
                                         <div className="text-xs uppercase text-muted-foreground font-medium flex items-center justify-center gap-1">
                                             <Clock className="h-3 w-3" /> Ends In
                                         </div>
-                                        <div className="flex justify-center items-center gap-3 text-2xl font-bold">
+                                        <div className="flex justify-center items-center gap-3 text-xl font-bold">
                                             <div className="flex flex-col items-center">
                                                 <span>02</span>
                                                 <span className="text-[9px] text-muted-foreground uppercase">Hrs</span>

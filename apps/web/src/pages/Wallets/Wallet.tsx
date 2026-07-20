@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { AppSidebar } from "@/components/app-sidebar"
 import { BottomNavbar } from "@/components/bottom-navbar"
 import {
@@ -13,6 +14,7 @@ import { PlusCircle, CreditCard, Wallet as WalletIcon, Trophy, Landmark } from "
 import Header from "../Header/Header"
 
 export default function Wallet() {
+    const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
     const [balance, setBalance] = useState(12450.85)
     const [available, setAvailable] = useState(8120.00)
@@ -137,7 +139,7 @@ export default function Wallet() {
                             <div className="space-y-4">
                                 {/* Total Balance Card */}
                                 <Card className="w-full">
-                                    <CardContent className=" space-y-4">
+                                    <CardContent className="space-y-4">
                                         <div className="space-y-1">
                                             <span className="text-xs uppercase text-muted-foreground font-semibold">Total Balance</span>
                                             <div className="flex items-baseline gap-1">
@@ -146,37 +148,14 @@ export default function Wallet() {
                                             </div>
                                         </div>
 
-                                        {action === "none" ? (
-                                            <div className="flex gap-3">
-                                                <Button className="flex-1 h-10 font-bold" size="sm" onClick={() => { setAction("deposit"); setError(""); setAmount(""); }}>
-                                                    <PlusCircle className="mr-1.5 h-4 w-4" /> DEPOSIT
-                                                </Button>
-                                                <Button variant="outline" className="flex-1 h-10 font-bold" size="sm" onClick={() => { setAction("withdraw"); setError(""); setAmount(""); }}>
-                                                    <Landmark className="mr-1.5 h-4 w-4" /> WITHDRAW
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-3">
-                                                <div className="flex flex-col gap-1.5">
-                                                    <label className="text-xs font-semibold text-muted-foreground uppercase">{action} Amount</label>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="0.00"
-                                                        value={amount}
-                                                        onChange={(e) => setAmount(e.target.value)}
-                                                    />
-                                                    {error && <span className="text-[10px] text-destructive font-semibold">{error}</span>}
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <Button className="flex-1 h-9 text-xs font-semibold" onClick={handleConfirm}>
-                                                        Confirm
-                                                    </Button>
-                                                    <Button variant="outline" className="flex-1 h-9 text-xs font-semibold" onClick={() => setAction("none")}>
-                                                        Cancel
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        )}
+                                        <div className="flex gap-3">
+                                            <Button className="flex-1 h-10 font-bold" size="sm" onClick={() => navigate("/wallet/deposit")}>
+                                                <PlusCircle className="mr-1.5 h-4 w-4" /> DEPOSIT
+                                            </Button>
+                                            <Button variant="outline" className="flex-1 h-10 font-bold" size="sm" onClick={() => navigate("/wallet/withdraw")}>
+                                                <Landmark className="mr-1.5 h-4 w-4" /> WITHDRAW
+                                            </Button>
+                                        </div>
                                     </CardContent>
                                 </Card>
 

@@ -3,7 +3,10 @@ import DashboardPage from "@/pages/Dashboard/Pages"
 import NotFoundPage from "@/pages/NotFound/NotFoundPage"
 import CategoryPage from "@/pages/Categories/Category"
 import JoinChallengePage from "@/pages/Categories/JoinChallenge"
+import TrendingChellangesPage from "@/pages/Categories/TrendingChellanges"
 import WalletPage from "@/pages/Wallets/Wallet"
+import DepositPage from "@/pages/Wallets/Deposit"
+import WithdrawalPage from "@/pages/Wallets/Withdrawal"
 import ProfilePage from "@/pages/Profile/Profile"
 import EditProfilePage from "@/pages/Profile/EditProfile"
 import ActivityPage from "@/pages/Activity/Activity"
@@ -29,6 +32,14 @@ export const router = createBrowserRouter([
   },
   {
     path: "/challenges",
+    element: <TrendingChellangesPage />,
+  },
+  {
+    path: "/challenges/trending",
+    element: <TrendingChellangesPage />,
+  },
+  {
+    path: "/challenges/create",
     element: <CategoryPage />,
   },
   {
@@ -38,6 +49,14 @@ export const router = createBrowserRouter([
   {
     path: "/wallet",
     element: <WalletPage />,
+  },
+  {
+    path: "/wallet/deposit",
+    element: <DepositPage />,
+  },
+  {
+    path: "/wallet/withdraw",
+    element: <WithdrawalPage />,
   },
   {
     path: "/profile",
