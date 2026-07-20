@@ -10,16 +10,16 @@ import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Avatar, AvatarImage, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Badge } from "@workspace/ui/components/badge"
-import { 
-    Settings, 
-    Shield, 
-    Bell, 
-    HelpCircle, 
-    ChevronRight, 
-    Coins, 
-    Flame, 
-    Award, 
-    CheckCircle 
+import {
+    Settings,
+    Shield,
+    Bell,
+    HelpCircle,
+    ChevronRight,
+    Coins,
+    Flame,
+    Award,
+    CheckCircle
 } from "lucide-react"
 import Header from "../Header/Header"
 
@@ -94,18 +94,18 @@ export default function Profile() {
 
                                 {/* Stats Card */}
                                 <Card>
-                                    <CardContent className="p-4 grid grid-cols-3 gap-2 text-center divide-x divide-border">
+                                    <CardContent className=" grid grid-cols-3 gap-2 text-center divide-x divide-border">
                                         <div className="space-y-1">
                                             <div className="text-[9px] uppercase text-muted-foreground font-semibold tracking-wider">Challenges</div>
-                                            <div className="text-base font-extrabold text-foreground">42</div>
+                                            <div className="text-base font-semibold text-foreground">42</div>
                                         </div>
                                         <div className="space-y-1">
                                             <div className="text-[9px] uppercase text-muted-foreground font-semibold tracking-wider">Total Earned</div>
-                                            <div className="text-base font-extrabold text-primary">$15.4k</div>
+                                            <div className="text-base font-semibold text-primary">$15.4k</div>
                                         </div>
                                         <div className="space-y-1">
                                             <div className="text-[9px] uppercase text-muted-foreground font-semibold tracking-wider">Rank</div>
-                                            <div className="text-base font-extrabold text-foreground">#128</div>
+                                            <div className="text-base font-semibold text-foreground">#128</div>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -113,33 +113,33 @@ export default function Profile() {
                                 {/* Badges Section */}
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <h3 className="text-sm font-bold uppercase tracking-wide">Badges</h3>
+                                        <h3 className="text-sm font-semibold uppercase tracking-wide">Badges</h3>
                                         <Button variant="link" size="sm" className="h-auto p-0 text-xs font-semibold text-primary">VIEW ALL</Button>
                                     </div>
                                     <div className="grid grid-cols-4 gap-2 text-center">
                                         <div className="space-y-1.5">
-                                            <div className="h-12 w-12 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
-                                                <Coins className="h-5 w-5" />
+                                            <div className="h-11 w-11 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
+                                                <Coins className="h-4 w-4" />
                                             </div>
-                                            <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">High Roller</div>
+                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">High Roller</div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <div className="h-12 w-12 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
-                                                <Flame className="h-5 w-5" />
+                                            <div className="h-11 w-11 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
+                                                <Flame className="h-4 w-4" />
                                             </div>
-                                            <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">Win Streak</div>
+                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Win Streak</div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <div className="h-12 w-12 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
-                                                <CheckCircle className="h-5 w-5" />
+                                            <div className="h-11 w-11 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
+                                                <CheckCircle className="h-4 w-4" />
                                             </div>
-                                            <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground text-center leading-tight">Early Adopter</div>
+                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground text-center leading-tight">Early Adopter</div>
                                         </div>
                                         <div className="space-y-1.5">
-                                            <div className="h-12 w-12 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
-                                                <Award className="h-5 w-5" />
+                                            <div className="h-11 w-11 rounded-full bg-secondary/50 flex items-center justify-center mx-auto text-foreground border border-border">
+                                                <Award className="h-4 w-4" />
                                             </div>
-                                            <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">Champion</div>
+                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Champion</div>
                                         </div>
                                     </div>
                                 </div>
