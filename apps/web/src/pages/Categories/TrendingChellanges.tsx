@@ -20,12 +20,13 @@ import {
     Plus,
     Trophy,
     Dumbbell,
-    TrendingUp,
     Gamepad2,
     ChevronRight,
     Flame,
 } from "lucide-react"
 import Header from "../Header/Header"
+import { useAppSelector } from "@/store/hooks"
+import { toast } from "sonner"
 
 interface ChallengeItem {
     id: string
@@ -122,6 +123,17 @@ export default function TrendingChellanges() {
     const [loading, setLoading] = useState(true)
     const [selectedCategory, setSelectedCategory] = useState<string>("SPORTS")
     const [searchQuery, setSearchQuery] = useState("")
+
+    const { isAuthenticated } = useAppSelector((state) => state.auth)
+
+    const handleCreateClick = () => {
+        if (isAuthenticated) {
+            navigate("/challenges/create")
+        } else {
+            toast.info("Please login first to create a challenge.")
+            navigate("/login")
+        }
+    }
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -294,7 +306,7 @@ export default function TrendingChellanges() {
                                 filteredChallenges.map((challenge) => (
                                     <Card
                                         key={challenge.id}
-                                        onClick={() => navigate("/challenges/create")}
+                                        onClick={handleCreateClick}
                                         className="w-full transition-all duration-300 border border-border/60 shadow-sm hover:shadow-md overflow-hidden cursor-pointer hover:border-primary/50 group"
                                     >
                                         <CardContent className="  space-y-1">
@@ -363,7 +375,7 @@ export default function TrendingChellanges() {
                     {!loading && (
                         <Button
                             size="icon"
-                            onClick={() => navigate("/challenges/create")}
+                            onClick={handleCreateClick}
                             className="fixed bottom-24 right-6 h-12 w-12 rounded-full shadow-lg bg-primary text-primary-foreground hover:bg-primary/90 z-40 transition-transform active:scale-95"
                         >
                             <Plus className="h-6 w-6" />

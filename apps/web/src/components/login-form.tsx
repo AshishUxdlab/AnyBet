@@ -26,6 +26,7 @@ import {
 } from "firebase/auth"
 import { doc, setDoc } from "firebase/firestore"
 import { AlertCircle, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
   initialMode?: "login" | "signup"
@@ -72,6 +73,7 @@ export function LoginForm({
     try {
       if (mode === "login") {
         await signInWithEmailAndPassword(auth, email, password)
+        toast.success("Logged in successfully!")
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         const user = userCredential.user
@@ -89,11 +91,13 @@ export function LoginForm({
             username: username,
             email: email,
             phone: phone,
+            coins: 200,
             createdAt: new Date().toISOString()
           })
         } catch (dbErr) {
           console.warn("Could not write user record to Firestore:", dbErr)
         }
+        toast.success("Account created successfully! Enjoy your 200 bonus coins!")
       }
       navigate("/dashboard")
     } catch (err: any) {
@@ -129,11 +133,13 @@ export function LoginForm({
           username: user.email?.split("@")[0] || "",
           email: user.email || "",
           phone: user.phoneNumber || "",
+          coins: 200,
           createdAt: new Date().toISOString()
         }, { merge: true })
       } catch (dbErr) {
         console.warn("Could not write google user record to Firestore:", dbErr)
       }
+      toast.success("Signed in with Google successfully!")
       navigate("/dashboard")
     } catch (err: any) {
       console.error("Google Auth error:", err)

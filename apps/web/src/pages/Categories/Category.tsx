@@ -25,14 +25,30 @@ import {
     Bot,
     Users,
     DollarSign,
-    Rocket,
-    Plus,
 } from "lucide-react"
 import Header from "../Header/Header"
+
+import { useAppSelector } from "@/store/hooks"
+import { db } from "@/Firebase/firebase"
+import { collection, addDoc, doc, updateDoc, increment } from "firebase/firestore"
+import { toast } from "sonner"
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { LoginForm } from "@/components/login-form"
 
 export default function Category() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
+
+    // Redux auth state
+    const { isAuthenticated, uid, coins } = useAppSelector((state) => state.auth)
+    const [showLoginSheet, setShowLoginSheet] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // Stepper state: 1 = Details, 2 = Rules, 3 = Stake, 4 = Review
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1)
@@ -694,16 +710,79 @@ export default function Category() {
                                     </Button>
                                 ) : (
                                     <Button
-                                        onClick={() => navigate("/challenges/join")}
-                                        className="flex-1 h-10 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90  transition-all active:scale-[0.99]"
+                                        disabled={isSubmitting}
+                                        onClick={async () => {
+                                            if (!isAuthenticated) {
+                                                setShowLoginSheet(true)
+                                                return
+                                            }
+
+                                            const stake = parseFloat(stakeAmount)
+                                            if (isNaN(stake) || stake <= 0) {
+                                                toast.error("Invalid stake amount.")
+                                                return
+                                            }
+                                            if (coins < stake) {
+                                                toast.error(`Insufficient balance. You have ${coins} coins but need ${stake}.`)
+                                                return
+                                            }
+
+                                            setIsSubmitting(true)
+                                            try {
+                                                // Create challenge
+                                                await addDoc(collection(db, "challenges"), {
+                                                    creatorId: uid,
+                                                    category: selectedCategory,
+                                                    title,
+                                                    description,
+                                                    duration,
+                                                    verification,
+                                                    stakeAmount: stake,
+                                                    maxPlayers,
+                                                    createdAt: new Date().toISOString(),
+                                                    status: "open"
+                                                })
+
+                                                // Deduct coins from user
+                                                if (uid) {
+                                                    await updateDoc(doc(db, "users", uid), {
+                                                        coins: increment(-stake)
+                                                    })
+                                                }
+
+                                                toast.success("Challenge created successfully!")
+                                                navigate("/dashboard")
+                                            } catch (error) {
+                                                console.error("Error creating challenge:", error)
+                                                toast.error("Failed to create challenge. Please try again.")
+                                            } finally {
+                                                setIsSubmitting(false)
+                                            }
+                                        }}
+                                        className="flex-1 h-10 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-[0.99]"
                                     >
-                                        Create & Launch Challenge
+                                        {isSubmitting ? "Launching..." : "Create & Launch Challenge"}
                                     </Button>
                                 )}
                             </div>
                         </div>
                     )}
                 </SidebarInset>
+
+                {/* Login/Signup Sheet if user is not authenticated */}
+                <Sheet open={showLoginSheet} onOpenChange={setShowLoginSheet}>
+                    <SheetContent side="bottom" className="h-[80vh] rounded-t-2xl px-2">
+                        <SheetHeader className="pb-4">
+                            <SheetTitle>Login Required</SheetTitle>
+                            <SheetDescription>
+                                You must be signed in to launch a challenge. We'll save your draft so you can continue right after!
+                            </SheetDescription>
+                        </SheetHeader>
+                        <div className="overflow-y-auto pb-8 h-full">
+                            <LoginForm initialMode="signup" />
+                        </div>
+                    </SheetContent>
+                </Sheet>
             </SidebarProvider>
             <BottomNavbar />
         </>

@@ -8,7 +8,7 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
+import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { PlusCircle, CreditCard, Wallet as WalletIcon, Trophy, Landmark } from "lucide-react"
 import Header from "../Header/Header"
@@ -19,9 +19,8 @@ export default function Wallet() {
     const [balance, setBalance] = useState(12450.85)
     const [available, setAvailable] = useState(8120.00)
     const [escrow] = useState(4330.85)
-    const [action, setAction] = useState<"none" | "deposit" | "withdraw">("none")
-    const [amount, setAmount] = useState("")
-    const [error, setError] = useState("")
+    const [carouselApi, setCarouselApi] = useState<any>()
+    const [activeCardIndex, setActiveCardIndex] = useState(0)
     const [transactions, setTransactions] = useState([
         {
             id: 1,
@@ -48,52 +47,13 @@ export default function Wallet() {
         return () => clearTimeout(timer)
     }, [])
 
-    const handleConfirm = () => {
-        setError("")
-        const parsedAmount = parseFloat(amount)
-        if (isNaN(parsedAmount) || parsedAmount <= 0) {
-            setError("Please enter a valid positive amount")
-            return
-        }
-
-        if (action === "deposit") {
-            setBalance(prev => prev + parsedAmount)
-            setAvailable(prev => prev + parsedAmount)
-            setTransactions(prev => [
-                {
-                    id: Date.now(),
-                    type: "deposit",
-                    title: "Deposit: Bank Transfer",
-                    amount: `+$${parsedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    date: "Just Now • Completed",
-                    sub: "Deposit"
-                },
-                ...prev
-            ])
-            setAction("none")
-            setAmount("")
-        } else if (action === "withdraw") {
-            if (parsedAmount > available) {
-                setError("Insufficient available funds")
-                return
-            }
-            setBalance(prev => prev - parsedAmount)
-            setAvailable(prev => prev - parsedAmount)
-            setTransactions(prev => [
-                {
-                    id: Date.now(),
-                    type: "withdraw",
-                    title: "Withdraw: Bank Transfer",
-                    amount: `-$${parsedAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    date: "Just Now • Completed",
-                    sub: "Withdrawal"
-                },
-                ...prev
-            ])
-            setAction("none")
-            setAmount("")
-        }
-    }
+    useEffect(() => {
+        if (!carouselApi) return
+        const onSelect = () => setActiveCardIndex(carouselApi.selectedScrollSnap())
+        carouselApi.on("select", onSelect)
+        onSelect()
+        return () => { carouselApi.off("select", onSelect) }
+    }, [carouselApi])
 
     return (
         <>
