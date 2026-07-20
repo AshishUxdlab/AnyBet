@@ -1,7 +1,6 @@
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Button } from "@workspace/ui/components/button"
 import { SidebarTrigger } from "@workspace/ui/components/sidebar"
-import { Bell } from "lucide-react"
+import { NotificationCenter } from "@/components/NotificationCenter"
 
 interface HeaderProps {
   loading?: boolean;
@@ -26,13 +25,10 @@ const Header = ({ loading = false, title = "ANYBET" }: HeaderProps) => {
       {loading ? (
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary" />
-        </Button>
+        <NotificationCenter />
       )}
     </header>
   )
 }
 
-export default Header
+export default Header

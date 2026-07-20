@@ -29,6 +29,7 @@ import { signOut, onAuthStateChanged, type User } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { auth, db } from "@/Firebase/firebase"
 import Header from "../Header/Header"
+import { NotificationPreferencesModal } from "@/components/NotificationPreferencesModal"
 
 interface UserProfileData {
     name?: string
@@ -44,6 +45,7 @@ export default function Profile() {
     const [loading, setLoading] = useState(true)
     const [currentUser, setCurrentUser] = useState<User | null>(null)
     const [profileData, setProfileData] = useState<UserProfileData | null>(null)
+    const [notifModalOpen, setNotifModalOpen] = useState(false)
 
     const handleLogout = async () => {
         try {
@@ -244,7 +246,7 @@ export default function Profile() {
                                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                         </Button>
 
-                                        <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
+                                        <Button variant="ghost" onClick={() => setNotifModalOpen(true)} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
                                             <div className="flex items-center gap-3">
                                                 <Bell className="h-4 w-4 text-muted-foreground" />
                                                 <span className="text-sm font-medium">Notification Preferences</span>
@@ -285,6 +287,7 @@ export default function Profile() {
 
                 </SidebarInset>
             </SidebarProvider>
+            <NotificationPreferencesModal open={notifModalOpen} onOpenChange={setNotifModalOpen} />
             <BottomNavbar />
         </>
     )
