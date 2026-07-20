@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { AppSidebar } from "@/components/app-sidebar"
 import { BottomNavbar } from "@/components/bottom-navbar"
 import {
@@ -19,11 +20,13 @@ import {
     Coins,
     Flame,
     Award,
-    CheckCircle
+    CheckCircle,
+    Pencil
 } from "lucide-react"
 import Header from "../Header/Header"
 
 export default function Profile() {
+    const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -75,14 +78,26 @@ export default function Profile() {
                             <div className="space-y-6">
                                 {/* Profile Info */}
                                 <div className="flex flex-col items-center text-center space-y-3">
-                                    <div className="relative">
-                                        <Avatar className="h-24 w-24 border-2 border-primary/20">
+                                    <div className="relative group cursor-pointer" onClick={() => navigate("/profile/edit")}>
+                                        <Avatar className="h-24 w-24 border-2 border-primary/20 transition-transform duration-200 group-hover:scale-105">
                                             <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Player One" />
                                             <AvatarFallback>P1</AvatarFallback>
                                         </Avatar>
-                                        <Badge className="absolute bottom-0 right-0 bg-primary hover:bg-primary text-primary-foreground font-bold px-1.5 py-0.5 text-[9px] uppercase tracking-wider">
+                                        <Badge className="absolute bottom-0 right-0 bg-primary hover:bg-primary text-primary-foreground font-bold px-1.5 py-0.5 text-[9px] uppercase tracking-wider shadow-sm">
                                             PRO
                                         </Badge>
+                                        {/* Pencil Edit Icon Button */}
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                navigate("/profile/edit")
+                                            }}
+                                            className="absolute top-0 right-0 p-1.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring border border-background"
+                                            title="Edit Profile"
+                                        >
+                                            <Pencil className="h-3.5 w-3.5" />
+                                        </button>
                                     </div>
                                     <div className="space-y-1">
                                         <h2 className="text-xl font-bold tracking-tight">Player One</h2>
@@ -147,7 +162,7 @@ export default function Profile() {
                                 {/* Settings Menu */}
                                 <Card>
                                     <CardContent className="p-0 flex flex-col divide-y divide-border">
-                                        <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
+                                        <Button variant="ghost" onClick={() => navigate("/profile/edit")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
                                             <div className="flex items-center gap-3">
                                                 <Settings className="h-4 w-4 text-muted-foreground" />
                                                 <span className="text-sm font-medium">Account Settings</span>

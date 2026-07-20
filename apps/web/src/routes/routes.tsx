@@ -5,6 +5,7 @@ import CategoryPage from "@/pages/Categories/Category"
 import JoinChallengePage from "@/pages/Categories/JoinChallenge"
 import WalletPage from "@/pages/Wallets/Wallet"
 import ProfilePage from "@/pages/Profile/Profile"
+import EditProfilePage from "@/pages/Profile/EditProfile"
 import ActivityPage from "@/pages/Activity/Activity"
 
 export const router = createBrowserRouter([
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
   {
     path: "/profile",
     element: <ProfilePage />,
+  },
+  {
+    path: "/profile/edit",
+    element: <EditProfilePage />,
   },
   {
     path: "/activity",

@@ -10,7 +10,7 @@ interface HeaderProps {
 
 const Header = ({ loading = false, title = "ANYBET" }: HeaderProps) => {
   return (
-    <header className="flex items-center justify-between px-4 py-4 border-b">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b flex items-center justify-between px-4 py-4">
       {loading ? (
         <Skeleton className="h-6 w-6" />
       ) : (
