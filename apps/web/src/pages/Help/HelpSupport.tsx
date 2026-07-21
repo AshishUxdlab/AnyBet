@@ -26,17 +26,34 @@ import {
     PlusCircle,
     FileText,
     ChevronRight,
+    ChevronDown,
+    ChevronUp,
     Headphones,
 } from "lucide-react"
 import Header from "../Header/Header"
+import { auth, db } from "@/Firebase/firebase"
+import {
+    collection,
+    addDoc,
+    doc,
+    updateDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    arrayUnion,
+    serverTimestamp
+} from "firebase/firestore"
 
 interface TicketItem {
     id: string
+    ticketCode?: string
     subject: string
     category: string
     status: "Open" | "In Review" | "Resolved"
     date: string
     lastUpdate: string
+    description?: string
+    messages?: Array<{ sender: "user" | "mod"; text: string; time: string }>
 }
 
 export default function HelpSupport() {
@@ -46,6 +63,9 @@ export default function HelpSupport() {
     // Modals state
     const [isLiveChatOpen, setIsLiveChatOpen] = useState(false)
     const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false)
+    const [viewingTicket, setViewingTicket] = useState<TicketItem | null>(null)
+    const [expandedTicketId, setExpandedTicketId] = useState<string | null>(null)
+    const [replyInputMap, setReplyInputMap] = useState<Record<string, string>>({})
 
     // Chat messages state
     const [chatMessages, setChatMessages] = useState<Array<{ sender: "bot" | "user"; text: string; time: string }>>([
@@ -54,25 +74,8 @@ export default function HelpSupport() {
     const [inputMessage, setInputMessage] = useState("")
     const [isTyping, setIsTyping] = useState(false)
 
-    // Sample tickets
-    const [tickets, setTickets] = useState<TicketItem[]>([
-        {
-            id: "TICK-4821",
-            subject: "Lakers vs Celtics challenge pot settlement delay",
-            category: "Challenge & Bet Disputes",
-            status: "In Review",
-            date: "Today, 02:15 PM",
-            lastUpdate: "Assigned to Sports Moderator"
-        },
-        {
-            id: "TICK-3910",
-            subject: "Deposit of $50 via Visa not showing in wallet",
-            category: "Wallet & Cashouts",
-            status: "Resolved",
-            date: "Yesterday, 06:40 PM",
-            lastUpdate: "Fund credited & PRO XP awarded"
-        }
-    ])
+    // Tickets state synced with Firebase
+    const [tickets, setTickets] = useState<TicketItem[]>([])
 
     // Ticket form state
     const [ticketCategory, setTicketCategory] = useState("Challenge & Bet Disputes")
@@ -80,11 +83,58 @@ export default function HelpSupport() {
     const [ticketDesc, setTicketDesc] = useState("")
     const [ticketCreatedSuccess, setTicketCreatedSuccess] = useState(false)
 
+    // Real-time Firebase Firestore Sync
     useEffect(() => {
-        const timer = setTimeout(() => {
+        try {
+            const colRef = collection(db, "support_tickets")
+            const unsubscribe = onSnapshot(colRef, (snapshot) => {
+                const fetchedTickets: (TicketItem & { rawTime: number })[] = snapshot.docs.map(docSnap => {
+                    const data = docSnap.data()
+                    let dateStr = "Just Now"
+                    let rawTime = Date.now()
+
+                    if (data.createdAt) {
+                        if (typeof data.createdAt === "number") {
+                            rawTime = data.createdAt
+                            dateStr = new Date(data.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        } else if (data.createdAt.toDate) {
+                            const dateObj = data.createdAt.toDate()
+                            rawTime = dateObj.getTime()
+                            dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                        }
+                    }
+
+                    return {
+                        id: docSnap.id,
+                        ticketCode: data.ticketCode || docSnap.id.substring(0, 8).toUpperCase(),
+                        subject: data.subject || "",
+                        category: data.category || "General",
+                        status: data.status || "Open",
+                        date: dateStr,
+                        lastUpdate: data.lastUpdate || "Submitted to moderation team",
+                        description: data.description || "",
+                        messages: data.messages || [],
+                        rawTime
+                    }
+                })
+
+                // Sort newest first
+                fetchedTickets.sort((a, b) => b.rawTime - a.rawTime)
+
+                if (fetchedTickets.length > 0) {
+                    setTickets(fetchedTickets)
+                }
+                setLoading(false)
+            }, (error) => {
+                console.warn("Firebase tickets subscription info:", error)
+                setLoading(false)
+            })
+
+            return () => unsubscribe()
+        } catch (err) {
+            console.error("Firestore initialization error:", err)
             setLoading(false)
-        }, 600)
-        return () => clearTimeout(timer)
+        }
     }, [])
 
     const handleSendMessage = () => {
@@ -109,28 +159,90 @@ export default function HelpSupport() {
         }, 1200)
     }
 
-    const handleCreateTicketSubmit = (e: React.FormEvent) => {
+    const handleCreateTicketSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!ticketSubject.trim() || !ticketDesc.trim()) return
 
-        const newTicket: TicketItem = {
-            id: `TICK-${Math.floor(1000 + Math.random() * 9000)}`,
+        const currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        const ticketCode = `TICK-${Math.floor(1000 + Math.random() * 9000)}`
+        const initialMessages: Array<{ sender: "user" | "mod"; text: string; time: string }> = []
+
+        const tempId = `TICK-${Date.now()}`
+        const newTicketItem: TicketItem = {
+            id: tempId,
+            ticketCode,
             subject: ticketSubject,
             category: ticketCategory,
             status: "Open",
             date: "Just Now",
-            lastUpdate: "Ticket submitted to moderation team"
+            lastUpdate: "Ticket submitted to moderation team",
+            description: ticketDesc,
+            messages: initialMessages
         }
 
-        setTickets(prev => [newTicket, ...prev])
+        // 1. Optimistic instant UI update
+        setTickets(prev => [newTicketItem, ...prev])
+        setExpandedTicketId(tempId)
         setTicketCreatedSuccess(true)
 
+        // Reset modal form
         setTimeout(() => {
             setTicketCreatedSuccess(false)
             setIsCreateTicketOpen(false)
             setTicketSubject("")
             setTicketDesc("")
-        }, 1500)
+        }, 1200)
+
+        // 2. Persist in Firebase Firestore
+        const newTicketPayload = {
+            ticketCode,
+            subject: ticketSubject,
+            category: ticketCategory,
+            status: "Open",
+            lastUpdate: "Ticket submitted to moderation team",
+            description: ticketDesc,
+            messages: initialMessages,
+            userId: auth.currentUser?.uid || "guest_user",
+            userEmail: auth.currentUser?.email || "anonymous@anybet.com",
+            createdAt: Date.now()
+        }
+
+        try {
+            await addDoc(collection(db, "support_tickets"), newTicketPayload)
+        } catch (err) {
+            console.error("Firebase save ticket error:", err)
+        }
+    }
+
+    const handleAddInlineReply = async (ticketId: string) => {
+        const text = replyInputMap[ticketId]?.trim()
+        if (!text) return
+
+        const currentTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        const newMsg = { sender: "user" as const, text, time: currentTimeStr }
+
+        try {
+            const ticketRef = doc(db, "support_tickets", ticketId)
+            await updateDoc(ticketRef, {
+                lastUpdate: "Follow-up added by user",
+                messages: arrayUnion(newMsg)
+            })
+            setReplyInputMap(prev => ({ ...prev, [ticketId]: "" }))
+        } catch (err) {
+            console.error("Firebase update reply error:", err)
+            // Local fallback
+            setTickets(prev => prev.map(t => {
+                if (t.id === ticketId) {
+                    return {
+                        ...t,
+                        lastUpdate: "Follow-up added by user",
+                        messages: [...(t.messages || []), newMsg]
+                    }
+                }
+                return t
+            }))
+            setReplyInputMap(prev => ({ ...prev, [ticketId]: "" }))
+        }
     }
 
     return (
@@ -148,22 +260,6 @@ export default function HelpSupport() {
                     <Header loading={loading} />
 
                     <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4 pb-24 max-w-md mx-auto w-full">
-                        {/* Back Navigation Bar */}
-                        <div className="flex items-center justify-between gap-2 pt-1">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => navigate("/profile")}
-                                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground p-0 h-auto font-medium text-xs"
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                                <span>Back to Profile</span>
-                            </Button>
-                            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-border">
-                                SUPPORT
-                            </Badge>
-                        </div>
-
                         {loading ? (
                             <div className="space-y-4 pt-2">
                                 <Skeleton className="h-28 w-full rounded-xl" />
@@ -177,73 +273,34 @@ export default function HelpSupport() {
                         ) : (
                             <>
                                 {/* Hero Support Card */}
-                                <Card className="border-border/60">
-                                    <CardContent className="p-4 space-y-3">
+                                <Card className="w-full">
+                                    <CardContent className="p-4 space-y-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shrink-0">
+                                            <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                                                 <Headphones className="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <h2 className="text-xs font-bold uppercase tracking-wider text-foreground">AnyBet Support Hub</h2>
-                                                <p className="text-xs text-muted-foreground mt-0.5">Have a challenge dispute or wallet issue? We're here 24/7.</p>
+                                                <h2 className="text-base font-bold text-foreground">AnyBet Support Hub</h2>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Dispute a challenge or need wallet help? We're active 24/7.</p>
                                             </div>
                                         </div>
 
                                         <Button
                                             onClick={() => setIsCreateTicketOpen(true)}
-                                            className="w-full h-9 text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                                            className="w-full h-10 font-bold uppercase tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                                         >
                                             <PlusCircle className="h-4 w-4 mr-1.5" /> Raise Support Ticket
                                         </Button>
                                     </CardContent>
                                 </Card>
 
-                                {/* Quick Support Action Buttons */}
-                                <div className="grid grid-cols-3 gap-2">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsLiveChatOpen(true)}
-                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/40 hover:bg-muted/40 transition-all group"
-                                    >
-                                        <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-                                            <MessageSquare className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-foreground">Live Chat</span>
-                                        <span className="text-[9px] text-primary font-bold uppercase">Instant</span>
-                                    </Button>
 
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => setIsCreateTicketOpen(true)}
-                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/40 hover:bg-muted/40 transition-all group"
-                                    >
-                                        <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-                                            <Ticket className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-foreground">Raise Ticket</span>
-                                        <span className="text-[9px] text-muted-foreground font-semibold uppercase">New Issue</span>
-                                    </Button>
-
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => window.open("mailto:support@anybet.com")}
-                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/40 hover:bg-muted/40 transition-all group"
-                                    >
-                                        <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
-                                            <Mail className="h-4 w-4" />
-                                        </div>
-                                        <span className="text-[11px] font-bold text-foreground">Email</span>
-                                        <span className="text-[9px] text-muted-foreground font-semibold uppercase">support@anybet</span>
-                                    </Button>
-                                </div>
 
                                 {/* Support Tickets Section */}
                                 <div className="space-y-3 pt-1">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                                            <Ticket className="h-4 w-4 text-primary" /> My Support Tickets ({tickets.length})
-                                        </span>
-                                        <Button size="sm" variant="ghost" onClick={() => setIsCreateTicketOpen(true)} className="h-7 text-xs font-bold text-primary p-0">
+                                        <h3 className="text-sm font-bold uppercase tracking-wide">My Support Tickets</h3>
+                                        <Button size="sm" variant="link" onClick={() => setIsCreateTicketOpen(true)} className="h-auto p-0 text-xs font-semibold text-primary">
                                             + NEW TICKET
                                         </Button>
                                     </div>
@@ -255,16 +312,18 @@ export default function HelpSupport() {
                                         </Card>
                                     ) : (
                                         tickets.map((t) => (
-                                            <Card key={t.id} className="border-border/60 hover:border-primary/40 transition-all">
-                                                <CardContent className="p-3.5 space-y-2.5">
+                                            <Card key={t.id} onClick={() => setViewingTicket(t)} className="cursor-pointer hover:border-primary/40 transition-all">
+                                                <CardContent className="p-4 space-y-2.5">
                                                     <div className="flex items-start justify-between gap-2">
                                                         <div>
-                                                            <span className="text-[10px] font-mono text-muted-foreground font-semibold">{t.id} • {t.category}</span>
-                                                            <h4 className="text-xs font-bold text-foreground leading-tight mt-0.5">{t.subject}</h4>
+                                                            <div className="text-[10px] uppercase font-semibold text-muted-foreground font-mono">
+                                                                {t.ticketCode || t.id} • {t.category}
+                                                            </div>
+                                                            <div className="text-sm font-semibold text-foreground mt-0.5">{t.subject}</div>
                                                         </div>
                                                         <Badge
                                                             variant="outline"
-                                                            className={`text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider shrink-0 ${
+                                                            className={`text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider shrink-0 ${
                                                                 t.status === "Resolved"
                                                                     ? "bg-primary/10 text-primary border-primary/30"
                                                                     : "bg-secondary text-muted-foreground border-border"
@@ -274,56 +333,25 @@ export default function HelpSupport() {
                                                         </Badge>
                                                     </div>
 
-                                                    <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/40">
-                                                        <span className="flex items-center gap-1">
+                                                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/40">
+                                                        <span className="flex items-center gap-1 text-[10px] uppercase">
                                                             <Clock className="h-3 w-3" /> {t.date}
                                                         </span>
-                                                        <span className="font-medium text-foreground">{t.lastUpdate}</span>
+                                                        <span className="text-[10px] uppercase font-medium text-foreground">{t.lastUpdate}</span>
                                                     </div>
                                                 </CardContent>
                                             </Card>
                                         ))
                                     )}
                                 </div>
-
-                                {/* Link to Dedicated FAQ Page */}
-                                <Card
-                                    onClick={() => navigate("/faq")}
-                                    className="bg-card border-border/60 hover:border-primary/40 cursor-pointer transition-all p-4"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                                                <FileText className="h-4 w-4" />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">AnyBet FAQ Knowledge Base</h4>
-                                                <p className="text-[10px] text-muted-foreground mt-0.5">Find instant answers to betting, wallet & challenge rules</p>
-                                            </div>
-                                        </div>
-                                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                                    </div>
-                                </Card>
-
-                                {/* Fair Play Info Card */}
-                                <Card className="bg-muted/30 border-border/60 p-4">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-foreground uppercase tracking-wider">
-                                            <ShieldCheck className="h-4 w-4 text-primary" /> AnyBet Fair Play Guarantee
-                                        </div>
-                                        <p className="text-xs text-muted-foreground leading-relaxed">
-                                            All sports and performance challenge pots are monitored by live referees. Dispute tickets are reviewed within 15 minutes.
-                                        </p>
-                                    </div>
-                                </Card>
                             </>
                         )}
                     </main>
 
                     {/* LIVE CHAT MODAL */}
                     {isLiveChatOpen && (
-                        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-end sm:items-center p-0 sm:p-4">
-                            <div className="w-full max-w-md bg-card border border-border sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col h-[85vh] sm:h-[600px] animate-in slide-in-from-bottom duration-300">
+                        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex justify-center items-center p-4">
+                            <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl flex flex-col h-[75vh] max-h-[550px] animate-in zoom-in-95 duration-200 overflow-hidden">
                                 <div className="p-3.5 border-b border-border bg-card flex items-center justify-between rounded-t-2xl">
                                     <div className="flex items-center gap-2.5">
                                         <div className="relative">
@@ -378,7 +406,7 @@ export default function HelpSupport() {
                                     )}
                                 </div>
 
-                                <div className="p-3 border-t border-border bg-card flex items-center gap-2 rounded-b-2xl">
+                                <div className="p-3 border-t border-border bg-card flex items-center gap-2 rounded-b-2xl shrink-0">
                                     <Input
                                         type="text"
                                         placeholder="Ask about deposits, challenges, or payouts..."
@@ -402,7 +430,7 @@ export default function HelpSupport() {
 
                     {/* RAISE TICKET MODAL */}
                     {isCreateTicketOpen && (
-                        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-center p-4">
+                        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex justify-center items-center p-4">
                             <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                                 <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
                                     <div className="flex items-center gap-2">
@@ -488,6 +516,85 @@ export default function HelpSupport() {
                                         </>
                                     )}
                                 </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* CLEAN TICKET SUMMARY DETAILS MODAL */}
+                    {viewingTicket && (
+                        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex justify-center items-center p-4">
+                            <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                                <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
+                                    <div className="flex items-center gap-2">
+                                        <Ticket className="h-4 w-4 text-primary" />
+                                        <div>
+                                            <div className="text-[10px] font-mono font-semibold text-muted-foreground">{viewingTicket.ticketCode || viewingTicket.id}</div>
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Support Ticket Details</h3>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setViewingTicket(null)}
+                                        className="h-8 w-8 rounded-full"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+
+                                <div className="p-4 space-y-4">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border/50">
+                                        <span className="text-xs font-semibold text-muted-foreground uppercase">Ticket Status</span>
+                                        <Badge
+                                            variant="outline"
+                                            className={`text-[10px] font-bold px-2.5 py-0.5 uppercase tracking-wider ${
+                                                viewingTicket.status === "Resolved"
+                                                    ? "bg-primary/10 text-primary border-primary/30"
+                                                    : "bg-secondary text-muted-foreground border-border"
+                                            }`}
+                                        >
+                                            {viewingTicket.status}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="space-y-3 text-xs">
+                                        <div className="flex justify-between py-1.5 border-b border-border/40">
+                                            <span className="text-muted-foreground uppercase font-semibold text-[10px]">Category</span>
+                                            <span className="font-semibold text-foreground">{viewingTicket.category}</span>
+                                        </div>
+
+                                        <div className="flex justify-between py-1.5 border-b border-border/40">
+                                            <span className="text-muted-foreground uppercase font-semibold text-[10px]">Subject</span>
+                                            <span className="font-semibold text-foreground text-right max-w-[200px]">{viewingTicket.subject}</span>
+                                        </div>
+
+                                        <div className="flex justify-between py-1.5 border-b border-border/40">
+                                            <span className="text-muted-foreground uppercase font-semibold text-[10px]">Submitted Date</span>
+                                            <span className="font-mono text-muted-foreground">{viewingTicket.date}</span>
+                                        </div>
+
+                                        <div className="flex justify-between py-1.5 border-b border-border/40">
+                                            <span className="text-muted-foreground uppercase font-semibold text-[10px]">Last Status Update</span>
+                                            <span className="font-semibold text-foreground text-right">{viewingTicket.lastUpdate}</span>
+                                        </div>
+
+                                        <div className="space-y-1.5 pt-2">
+                                            <span className="text-muted-foreground uppercase font-bold text-[10px] block">Issue Description</span>
+                                            <div className="p-3 rounded-xl bg-background border border-border/60 text-foreground text-xs leading-relaxed">
+                                                {viewingTicket.description || viewingTicket.subject}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-2 flex justify-end">
+                                        <Button
+                                            onClick={() => setViewingTicket(null)}
+                                            className="w-full h-9 text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90"
+                                        >
+                                            Close Details
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}

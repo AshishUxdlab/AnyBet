@@ -247,10 +247,10 @@ export default function Profile() {
                                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                         </Button>
 
-                                        <Button variant="ghost" onClick={() => setNotifModalOpen(true)} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
+                                        <Button variant="ghost" onClick={() => navigate("/notifications")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
                                             <div className="flex items-center gap-3">
                                                 <Bell className="h-4 w-4 text-muted-foreground" />
-                                                <span className="text-sm font-medium">Notification Preferences</span>
+                                                <span className="text-sm font-medium">Notifications</span>
                                             </div>
                                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                         </Button>
