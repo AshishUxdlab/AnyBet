@@ -12,6 +12,10 @@ import EditProfilePage from "@/pages/Profile/EditProfile"
 import ActivityPage from "@/pages/Activity/Activity"
 import LoginPage from "@/pages/Login/Login"
 import SignUpPage from "@/pages/SignUp/SignUp"
+import HelpSupportPage from "@/pages/Help/HelpSupport"
+import FAQPage from "@/pages/Help/FAQ"
+
+import NotificationsPage from "@/pages/Notifications/Notifications"
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +73,18 @@ export const router = createBrowserRouter([
   {
     path: "/activity",
     element: <ActivityPage />,
+  },
+  {
+    path: "/notifications",
+    element: <NotificationsPage />,
+  },
+  {
+    path: "/help",
+    element: <HelpSupportPage />,
+  },
+  {
+    path: "/faq",
+    element: <FAQPage />,
   },
   {
     path: "*",

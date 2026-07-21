@@ -16,6 +16,7 @@ import {
     Shield,
     Bell,
     HelpCircle,
+    FileText,
     ChevronRight,
     Coins,
     Flame,
@@ -254,10 +255,18 @@ export default function Profile() {
                                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                         </Button>
 
-                                        <Button variant="ghost" className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
+                                        <Button variant="ghost" onClick={() => navigate("/help")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
                                             <div className="flex items-center gap-3">
                                                 <HelpCircle className="h-4 w-4 text-muted-foreground" />
                                                 <span className="text-sm font-medium">Help & Support</span>
+                                            </div>
+                                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                        </Button>
+
+                                        <Button variant="ghost" onClick={() => navigate("/faq")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-foreground border-none hover:bg-muted/30">
+                                            <div className="flex items-center gap-3">
+                                                <FileText className="h-4 w-4 text-muted-foreground" />
+                                                <span className="text-sm font-medium">FAQ</span>
                                             </div>
                                             <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                         </Button>
