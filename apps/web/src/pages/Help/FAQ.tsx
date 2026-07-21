@@ -19,9 +19,9 @@ import {
     HelpCircle,
     Sparkles,
     AlertCircle,
-    FileText,
     Ticket,
     ChevronRight,
+    FileText,
 } from "lucide-react"
 import Header from "../Header/Header"
 
@@ -132,7 +132,7 @@ export default function FAQ() {
                 <AppSidebar variant="inset" />
                 <SidebarInset className="bg-background animate-in fade-in duration-300 ease-in-out">
                     {/* Standard App Header */}
-                    <Header title="FAQ" loading={loading} />
+                    <Header title="FAQ" loading={loading} showBackButton={true} />
 
                     <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4 pb-24 max-w-md mx-auto w-full">
                         {loading ? (

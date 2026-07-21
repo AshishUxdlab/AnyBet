@@ -9,15 +9,27 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@work
 import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
-import { Sparkles, Plus, Clock, Trophy } from "lucide-react"
+import { Sparkles, Plus, Clock, Trophy, Dumbbell, Gamepad2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { useAppSelector } from "@/store/hooks"
 
 import Header from "../Header/Header"
+
+const iconComponentMap: Record<string, any> = {
+    trophy: Trophy,
+    dumbbell: Dumbbell,
+    gamepad: Gamepad2,
+    sparkles: Sparkles,
+}
 
 export default function Page() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
+  const challenges = useAppSelector((state) => state.challenges.challenges)
+  
+  // Get at most 5 live challenges
+  const liveChallenges = challenges.filter(c => c.isLive).slice(0, 5)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -99,67 +111,43 @@ export default function Page() {
                     <Skeleton className="h-[200px] w-[250px] shrink-0" />
                     <Skeleton className="h-[200px] w-[250px] shrink-0" />
                   </>
-                ) : (
-                  <>
-                    <Card onClick={() => navigate("/challenges/create")} className="w-[250px] shrink-0 snap-start flex flex-col cursor-pointer hover:border-primary/50 transition-colors">
+                ) : liveChallenges.length > 0 ? (
+                  liveChallenges.map((challenge) => (
+                    <Card key={challenge.id} onClick={() => navigate("/challenges/trending")} className="w-[250px] shrink-0 snap-start flex flex-col cursor-pointer hover:border-primary/50 transition-colors">
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start">
                           <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
                             <span className="mr-1 h-1.5 w-1.5 rounded-full bg-primary"></span>
                             LIVE
                           </span>
-                          <span className="text-sm font-medium">$2,450 POT</span>
+                          <span className="text-sm font-medium">{challenge.potAmount} POT</span>
                         </div>
-                        <CardTitle className="text-base mt-2">Lakers vs Celtics Tonight</CardTitle>
-                        <CardDescription>High stakes social prediction.</CardDescription>
+                        <CardTitle className="text-base mt-2">{challenge.title}</CardTitle>
+                        <CardDescription className="line-clamp-1">{challenge.description}</CardDescription>
                       </CardHeader>
                       <CardContent className="mt-auto">
                         <div className="flex items-center">
                           <div className="flex -space-x-2">
-                            <Avatar className="h-8 w-8 border-2 border-background">
-                              <AvatarImage src="https://github.com/shadcn.png" />
-                              <AvatarFallback>CN</AvatarFallback>
-                            </Avatar>
-                            <Avatar className="h-8 w-8 border-2 border-background">
-                              <AvatarFallback>AB</AvatarFallback>
-                            </Avatar>
-                            <Avatar className="h-8 w-8 border-2 border-background">
-                              <AvatarFallback>XY</AvatarFallback>
-                            </Avatar>
+                            {challenge.avatars.length > 0 ? (
+                                challenge.avatars.map((img, idx) => (
+                                    <Avatar key={idx} className="h-8 w-8 border-2 border-background">
+                                        <AvatarImage src={img} />
+                                        <AvatarFallback>U{idx + 1}</AvatarFallback>
+                                    </Avatar>
+                                ))
+                            ) : (
+                                <Avatar className="h-8 w-8 border-2 border-background">
+                                    <AvatarFallback>U1</AvatarFallback>
+                                </Avatar>
+                            )}
                           </div>
-                          <span className="ml-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">+12</span>
+                          <span className="ml-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">{challenge.participantsCount}</span>
                         </div>
                       </CardContent>
                     </Card>
-
-                    <Card onClick={() => navigate("/challenges/create")} className="w-[250px] shrink-0 snap-start flex flex-col cursor-pointer hover:border-primary/50 transition-colors">
-                      <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                          <span className="inline-flex items-center rounded-md bg-secondary/10 px-2 py-1 text-xs font-medium text-secondary">
-                            <Clock className="mr-1 h-3 w-3" />
-                            ENDING SOON
-                          </span>
-                          <span className="text-sm font-medium">$800 POT</span>
-                        </div>
-                        <CardTitle className="text-base mt-2">Miami F1 Winner</CardTitle>
-                        <CardDescription>Local track conditions favored.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="mt-auto">
-                        <div className="flex items-center">
-                          <div className="flex -space-x-2">
-                            <Avatar className="h-8 w-8 border-2 border-background">
-                              <AvatarImage src="https://github.com/shadcn.png" />
-                              <AvatarFallback>CN</AvatarFallback>
-                            </Avatar>
-                            <Avatar className="h-8 w-8 border-2 border-background">
-                              <AvatarFallback>AB</AvatarFallback>
-                            </Avatar>
-                          </div>
-                          <span className="ml-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">+5</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </>
+                  ))
+                ) : (
+                    <div className="text-sm text-muted-foreground italic w-full text-center py-4">No live challenges found.</div>
                 )}
               </div>
             </section>

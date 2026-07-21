@@ -127,7 +127,7 @@ export default function Wallet() {
                 <AppSidebar variant="inset" />
                 <SidebarInset className="bg-background animate-in fade-in duration-500 ease-in-out">
 
-                    <Header loading={loading} />
+                    <Header title="WALLET" loading={loading} />
 
                     <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4 pb-24 max-w-md mx-auto w-full">
 
@@ -204,21 +204,21 @@ export default function Wallet() {
                                     <Carousel setApi={setCarouselApi} opts={{ align: "center" }} className="w-full max-w-sm mx-auto">
                                         <CarouselContent className="-ml-2">
                                             {/* Card 1 */}
-                                            <CarouselItem className="pl-2 basis-[75%]">
-                                                <div className={`transition-all duration-500 ease-out relative rounded-xl overflow-hidden bg-gradient-to-br from-[#0B3B52] to-[#0A1A2F] text-white p-3 space-y-2 shadow-2xl flex flex-col justify-between origin-center ${activeCardIndex === 0 ? "scale-100 z-20 opacity-100" : "scale-95 z-0 opacity-50 translate-x-8"}`}>
+                                            <CarouselItem className="pl-2 basis-[70%]">
+                                                <div className={`transition-all duration-500 ease-out relative rounded-xl overflow-hidden bg-gradient-to-br from-[#0B3B52] to-[#0A1A2F] text-white p-3 space-y-2 flex flex-col justify-between origin-center ${activeCardIndex === 0 ? "scale-100 z-20 opacity-100" : "scale-95 z-0 opacity-50 translate-x-8"}`}>
                                                     <div className="flex justify-between items-start">
-                                                        <span className="font-semibold text-md">ANYBET</span>
+                                                        <span className="font-semibold text-sm">ANYBET</span>
                                                         <MoreHorizontal className="text-white/80" />
                                                     </div>
 
                                                     <div className="flex justify-between items-center ">
-                                                        <div className="w-10 h-7 bg-gradient-to-br from-[#e6c27a] to-[#d4af37] rounded opacity-90 flex items-center justify-center overflow-hidden">
+                                                        <div className="w-8 h-6 bg-gradient-to-br from-[#e6c27a] to-[#d4af37] rounded opacity-90 flex items-center justify-center overflow-hidden">
                                                             <div className="w-full h-full opacity-30 bg-[linear-gradient(45deg,transparent_25%,rgba(0,0,0,0.1)_50%,transparent_75%)] bg-[length:4px_4px]"></div>
                                                         </div>
                                                         <span className="text-[10px] text-white/70 ">DEBIT CARD</span>
                                                     </div>
 
-                                                    <div className="text-lg md:text-xl font-mono tracking-widest pt-2 pb-1">
+                                                    <div className="text-sm md:text-xl font-mono tracking-widest ">
                                                         •••• •••• •••• 4921
                                                     </div>
 
@@ -236,19 +236,19 @@ export default function Wallet() {
                                             </CarouselItem>
 
                                             {/* Card 2 */}
-                                            <CarouselItem className="pl-2 basis-[75%]">
-                                                <div className={`transition-all duration-500 ease-out relative rounded-xl overflow-hidden bg-gradient-to-br from-[#2A2A2A] to-[#111111] text-white p-4 space-y-3 shadow-2xl flex flex-col justify-between origin-center ${activeCardIndex === 1 ? "scale-100 z-20 opacity-100" : "scale-95 z-0 opacity-50 -translate-x-8"}`}>
+                                            <CarouselItem className="pl-2 basis-[70%]">
+                                                <div className={`transition-all duration-500 ease-out relative rounded-xl overflow-hidden bg-gradient-to-br from-[#2A2A2A] to-[#111111] text-white p-3 space-y-3  flex flex-col justify-between origin-center ${activeCardIndex === 1 ? "scale-100 z-20 opacity-100" : "scale-95 z-0 opacity-50 -translate-x-8"}`}>
                                                     <div className="flex justify-between items-start">
                                                         <span className="font-semibold text-md opacity-0">ANYBET</span>
                                                         <MoreHorizontal className="text-white/80" />
                                                     </div>
 
                                                     <div className="flex justify-between items-center ">
-                                                        <div className="w-10 h-7 bg-transparent rounded"></div>
+                                                        <div className="w-8 h-6 bg-transparent rounded"></div>
                                                         <span className="text-[10px] text-white/70 ">DEBIT CARD</span>
                                                     </div>
 
-                                                    <div className="text-sm md:text-sm font-mono tracking-widest pt-2 pb-1">
+                                                    <div className="text-sm md:text-sm font-mono tracking-widest ">
                                                         •••• •••• •••• 8821
                                                     </div>
 

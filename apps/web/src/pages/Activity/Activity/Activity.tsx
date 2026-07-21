@@ -35,7 +35,7 @@ export default function Activity() {
                 <AppSidebar variant="inset" />
                 <SidebarInset className="bg-background animate-in fade-in duration-500 ease-in-out">
 
-                    <Header loading={loading} />
+                    <Header title="ACTIVITY" loading={loading} />
 
                     <main className="flex-1 overflow-auto p-4 md:p-6 space-y-6 pb-24 max-w-md mx-auto w-full">
                         {loading ? (

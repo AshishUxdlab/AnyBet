@@ -112,11 +112,11 @@ export default function Profile() {
                 }
             >
                 <AppSidebar variant="inset" />
-                <SidebarInset className="bg-background animate-in fade-in duration-500 ease-in-out">
-
+                <SidebarInset className="bg-background animate-in fade-in duration-300 ease-in-out">
+                    
                     <Header title="PROFILE" loading={loading} />
 
-                    <main className="flex-1 overflow-auto p-4 md:p-6 space-y-6 pb-24 max-w-md mx-auto w-full">
+                    <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4 pb-24 max-w-md mx-auto w-full">
                         {loading ? (
                             <div className="space-y-6">
                                 <div className="flex flex-col items-center space-y-3">
@@ -280,13 +280,11 @@ export default function Profile() {
                                                 <ChevronRight className="h-4 w-4 text-destructive/50" />
                                             </Button>
                                         ) : (
-                                            <Button variant="ghost" onClick={() => navigate("/login")} className="w-full justify-between h-auto py-3 px-4 font-normal rounded-none text-primary border-none hover:bg-primary/10 hover:text-primary">
-                                                <div className="flex items-center gap-3">
-                                                    <LogIn className="h-4 w-4 text-primary" />
-                                                    <span className="text-sm font-semibold">Log In / Sign Up</span>
-                                                </div>
-                                                <ChevronRight className="h-4 w-4 text-primary/50" />
-                                            </Button>
+                                            <div className="p-4 bg-card">
+                                                <Button onClick={() => navigate("/login")} className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-xl shadow-md transition-transform active:scale-[0.98]">
+                                                    Log In / Sign Up
+                                                </Button>
+                                            </div>
                                         )}
                                     </CardContent>
                                 </Card>

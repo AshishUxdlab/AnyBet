@@ -28,7 +28,8 @@ import {
 } from "lucide-react"
 import Header from "../Header/Header"
 
-import { useAppSelector } from "@/store/hooks"
+import { useAppSelector, useAppDispatch } from "@/store/hooks"
+import { addChallenge } from "@/store/slices/challengeSlice"
 import { db } from "@/Firebase/firebase"
 import { collection, addDoc, doc, updateDoc, increment } from "firebase/firestore"
 import { toast } from "sonner"
@@ -53,16 +54,20 @@ export default function Category() {
     // Stepper state: 1 = Details, 2 = Rules, 3 = Stake, 4 = Review
     const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1)
 
+    const dispatch = useAppDispatch()
+
     // Form states
-    const [selectedCategory, setSelectedCategory] = useState("prediction")
-    const [title, setTitle] = useState("Lakers vs Celtics Tonight")
-    const [description, setDescription] = useState(
-        "Who will score more than 30 points in the final quarter?"
-    )
-    const [duration, setDuration] = useState("2 Hours")
-    const [verification, setVerification] = useState("AI Judge")
-    const [stakeAmount, setStakeAmount] = useState("250")
-    const [maxPlayers, setMaxPlayers] = useState("Head-to-Head (2 Players)")
+    const [selectedCategory, setSelectedCategory] = useState("")
+    const [title, setTitle] = useState("")
+    const [description, setDescription] = useState("")
+    const [duration, setDuration] = useState("")
+    const [customHours, setCustomHours] = useState("")
+    const [customMinutes, setCustomMinutes] = useState("")
+    const [customSeconds, setCustomSeconds] = useState("")
+    const [customMs, setCustomMs] = useState("")
+    const [verification, setVerification] = useState("")
+    const [stakeAmount, setStakeAmount] = useState("")
+    const [maxPlayers, setMaxPlayers] = useState("")
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -83,7 +88,7 @@ export default function Category() {
             >
                 <AppSidebar variant="inset" />
                 <SidebarInset className="bg-background animate-in fade-in duration-500 ease-in-out w-full overflow-x-hidden">
-                    <Header loading={loading} />
+                    <Header loading={loading} showBackButton={true} />
 
                     <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 space-y-6 pb-44 max-w-md mx-auto w-full">
                         {/* Stepper Header */}
@@ -259,7 +264,7 @@ export default function Category() {
                                                     : "border-border/60 bg-card hover:bg-muted/50"
                                                     }`}
                                             >
-                                                <CardContent className="p-4 flex items-center gap-4">
+                                                <CardContent className="p-2 flex items-center gap-4">
                                                     <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                                         <Trophy className="h-5 w-5" />
                                                     </div>
@@ -305,7 +310,7 @@ export default function Category() {
                                                     : "border-border/60 bg-card hover:bg-muted/50"
                                                     }`}
                                             >
-                                                <CardContent className="p-4 flex items-center gap-4">
+                                                <CardContent className="p-2 flex items-center gap-4">
                                                     <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                                         <Dumbbell className="h-5 w-5" />
                                                     </div>
@@ -351,7 +356,7 @@ export default function Category() {
                                                     : "border-border/60 bg-card hover:bg-muted/50"
                                                     }`}
                                             >
-                                                <CardContent className="p-4 flex items-center gap-4">
+                                                <CardContent className="p-2 flex items-center gap-4">
                                                     <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                                         <TrendingUp className="h-5 w-5" />
                                                     </div>
@@ -397,7 +402,7 @@ export default function Category() {
                                                     : "border-border/60 bg-card hover:bg-muted/50"
                                                     }`}
                                             >
-                                                <CardContent className="p-4 flex items-center gap-4">
+                                                <CardContent className="p-2 flex items-center gap-4">
                                                     <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                                         <Sparkles className="h-5 w-5" />
                                                     </div>
@@ -469,19 +474,79 @@ export default function Category() {
                                             <Clock className="h-3.5 w-3.5 text-primary" /> Challenge Duration
                                         </label>
                                         <div className="grid grid-cols-2 gap-2">
-                                            {["2 Hours", "6 Hours", "24 Hours", "3 Days"].map((dur) => (
+                                            {["2 Hours", "6 Hours", "24 Hours", "3 Days", "Custom"].map((dur) => (
                                                 <Button
                                                     key={dur}
                                                     type="button"
                                                     variant={duration === dur ? "default" : "outline"}
                                                     size="sm"
-                                                    onClick={() => setDuration(dur)}
+                                                    onClick={() => {
+                                                        setDuration(dur)
+                                                        if (dur !== "Custom") {
+                                                            setCustomHours("")
+                                                            setCustomMinutes("")
+                                                            setCustomSeconds("")
+                                                            setCustomMs("")
+                                                        }
+                                                    }}
                                                     className="h-9 text-xs font-semibold"
                                                 >
                                                     {dur}
                                                 </Button>
                                             ))}
                                         </div>
+                                        {duration === "Custom" && (
+                                            <div className="pt-2 grid grid-cols-4 gap-2">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider text-center block">Hr</label>
+                                                    <Input
+                                                        type="number"
+                                                        min="0"
+                                                        max="999"
+                                                        value={customHours}
+                                                        onChange={(e) => setCustomHours(e.target.value)}
+                                                        placeholder="00"
+                                                        className="bg-muted/30 border-border/60 h-10 text-center text-sm font-mono"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider text-center block">Min</label>
+                                                    <Input
+                                                        type="number"
+                                                        min="0"
+                                                        max="59"
+                                                        value={customMinutes}
+                                                        onChange={(e) => setCustomMinutes(e.target.value)}
+                                                        placeholder="00"
+                                                        className="bg-muted/30 border-border/60 h-10 text-center text-sm font-mono"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider text-center block">Sec</label>
+                                                    <Input
+                                                        type="number"
+                                                        min="0"
+                                                        max="59"
+                                                        value={customSeconds}
+                                                        onChange={(e) => setCustomSeconds(e.target.value)}
+                                                        placeholder="00"
+                                                        className="bg-muted/30 border-border/60 h-10 text-center text-sm font-mono"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider text-center block">Ms</label>
+                                                    <Input
+                                                        type="number"
+                                                        min="0"
+                                                        max="999"
+                                                        value={customMs}
+                                                        onChange={(e) => setCustomMs(e.target.value)}
+                                                        placeholder="000"
+                                                        className="bg-muted/30 border-border/60 h-10 text-center text-sm font-mono"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-2 pt-1">
@@ -598,16 +663,16 @@ export default function Category() {
 
                         {/* STEP 4: REVIEW & LAUNCH */}
                         {currentStep === 4 && (
-                            <section className="space-y-4">
+                            <section className="space-y-2">
                                 <Card className="border-border/60 shadow-sm overflow-hidden">
-                                    <CardContent className="p-5 space-y-4">
+                                    <CardContent className=" 1">
                                         {/* Header Badge */}
                                         <div className="flex items-center justify-between">
                                             <Badge
                                                 variant="secondary"
                                                 className="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider px-2.5 py-1"
                                             >
-                                                ⚡ Live Challenge Draft
+                                                Live Challenge Draft
                                             </Badge>
                                             <div className="h-9 w-9 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
                                                 <Trophy className="h-5 w-5" />
@@ -675,7 +740,7 @@ export default function Category() {
                                 </Card>
 
                                 {/* Security Lock Notice */}
-                                <Card className="bg-primary/5 border-primary/20 p-4">
+                                <Card className="bg-primary/5 border-primary/20 px-4">
                                     <div className="flex items-start gap-3">
                                         <ShieldCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                                         <p className="text-xs text-muted-foreground leading-relaxed">
@@ -729,19 +794,69 @@ export default function Category() {
 
                                             setIsSubmitting(true)
                                             try {
-                                                // Create challenge
-                                                await addDoc(collection(db, "challenges"), {
+                                                const finalDuration = duration === "Custom"
+                                                    ? `${customHours || "0"}h ${customMinutes || "0"}m ${customSeconds || "0"}s ${customMs || "0"}ms`
+                                                    : duration
+
+                                                // Map selectedCategory to ChallengeItem category
+                                                const categoryMap: Record<string, "Sports" | "Physical" | "Performance"> = {
+                                                    prediction: "Sports",
+                                                    physical: "Physical",
+                                                    performance: "Performance",
+                                                    custom: "Sports",
+                                                }
+                                                const challengeCategory = categoryMap[selectedCategory] || "Sports"
+
+                                                // Map selectedCategory to icon type
+                                                const iconMap: Record<string, "trophy" | "dumbbell" | "gamepad" | "sparkles"> = {
+                                                    prediction: "trophy",
+                                                    physical: "dumbbell",
+                                                    performance: "gamepad",
+                                                    custom: "sparkles",
+                                                }
+                                                const iconColorMap: Record<string, { bg: string; color: string }> = {
+                                                    prediction: { bg: "bg-indigo-500/15", color: "text-indigo-400" },
+                                                    physical: { bg: "bg-purple-500/15", color: "text-purple-400" },
+                                                    performance: { bg: "bg-pink-500/15", color: "text-pink-400" },
+                                                    custom: { bg: "bg-amber-500/15", color: "text-amber-400" },
+                                                }
+
+                                                // Create challenge in Firestore
+                                                const docRef = await addDoc(collection(db, "challenges"), {
                                                     creatorId: uid,
-                                                    category: selectedCategory,
+                                                    category: challengeCategory,
                                                     title,
                                                     description,
-                                                    duration,
+                                                    duration: finalDuration,
                                                     verification,
                                                     stakeAmount: stake,
                                                     maxPlayers,
                                                     createdAt: new Date().toISOString(),
                                                     status: "open"
                                                 })
+
+                                                // Dispatch to Redux for real-time display
+                                                dispatch(addChallenge({
+                                                    id: docRef.id,
+                                                    creatorId: uid || undefined,
+                                                    title,
+                                                    description,
+                                                    category: challengeCategory,
+                                                    potAmount: `$${(stake * 2).toLocaleString()}`,
+                                                    stakeAmount: stake,
+                                                    timeLeft: `ENDS ${finalDuration}`,
+                                                    duration: finalDuration,
+                                                    verification,
+                                                    maxPlayers,
+                                                    isLive: true,
+                                                    participantsCount: "+1",
+                                                    iconType: iconMap[selectedCategory] || "trophy",
+                                                    iconBg: iconColorMap[selectedCategory]?.bg || "bg-indigo-500/15",
+                                                    iconColor: iconColorMap[selectedCategory]?.color || "text-indigo-400",
+                                                    avatars: [],
+                                                    createdAt: new Date().toISOString(),
+                                                    status: "open"
+                                                }))
 
                                                 // Deduct coins from user
                                                 if (uid) {
@@ -751,7 +866,7 @@ export default function Category() {
                                                 }
 
                                                 toast.success("Challenge created successfully!")
-                                                navigate("/dashboard")
+                                                navigate("/challenges/trending")
                                             } catch (error) {
                                                 console.error("Error creating challenge:", error)
                                                 toast.error("Failed to create challenge. Please try again.")

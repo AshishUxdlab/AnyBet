@@ -1,22 +1,28 @@
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { SidebarTrigger } from "@workspace/ui/components/sidebar"
 import { NotificationCenter } from "@/components/NotificationCenter"
+import { ArrowLeft } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "@workspace/ui/components/button"
 
 interface HeaderProps {
   loading?: boolean;
   title?: string;
-  showSidebarTrigger?: boolean;
+  showBackButton?: boolean;
 }
 
-const Header = ({ loading = false, title = "ANYBET", showSidebarTrigger = true }: HeaderProps) => {
+const Header = ({ loading = false, title = "ANYBET", showBackButton = false }: HeaderProps) => {
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b flex items-center justify-between px-4 py-4">
-      {!showSidebarTrigger ? (
-        <div className="h-6 w-6" /> // Placeholder for alignment
+      {showBackButton ? (
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-8 w-8 -ml-2 hover:bg-accent/60">
+           <ArrowLeft className="h-5 w-5" />
+        </Button>
       ) : loading ? (
-        <Skeleton className="h-6 w-6" />
+        <Skeleton className="h-8 w-8 -ml-2 rounded-full" />
       ) : (
-        <SidebarTrigger className="md:hidden" />
+        <img src="/images/Group%201171279597%201.png" alt="Logo" className="h-8 w-8 -ml-2 object-contain" />
       )}
       
       {loading ? (

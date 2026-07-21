@@ -147,7 +147,7 @@ export default function EditProfile() {
             >
                 <AppSidebar variant="inset" />
                 <SidebarInset className="bg-background animate-in fade-in duration-300 ease-in-out">
-                    <Header title="EDIT PROFILE" loading={loading} />
+                    <Header title="EDIT PROFILE" loading={loading} showBackButton={true} />
 
                     <main className="flex-1 overflow-auto p-4 md:p-6 pb-24 max-w-md mx-auto w-full">
                         {/* Top Back Navigation Bar */}

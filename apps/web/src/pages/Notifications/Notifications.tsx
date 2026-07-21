@@ -87,7 +87,7 @@ export default function NotificationsPage() {
       >
         <AppSidebar variant="inset" />
         <SidebarInset className="bg-background animate-in fade-in duration-500 ease-in-out min-h-screen flex flex-col">
-          <Header loading={loading} />
+          <Header loading={loading} showBackButton={true} title="NOTIFICATIONS" />
 
           <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4 pb-24 max-w-md mx-auto w-full">
             {/* Top Navigation & Action Header */}

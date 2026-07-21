@@ -1,17 +1,8 @@
 
 
-import React, { useState } from "react"
+import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import {
-  Bell,
-  CheckCheck,
-  Trash2,
-  Trophy,
-  Wallet,
-  Sparkles,
-  ChevronRight,
-  Inbox,
-} from "lucide-react"
+import { Bell } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 import { useNotifications } from "@/context/NotificationContext"

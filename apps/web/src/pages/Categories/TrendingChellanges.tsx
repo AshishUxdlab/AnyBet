@@ -23,108 +23,31 @@ import {
     Gamepad2,
     ChevronRight,
     Flame,
+    Sparkles,
 } from "lucide-react"
 import Header from "../Header/Header"
 import { useAppSelector } from "@/store/hooks"
 import { toast } from "sonner"
 
-interface ChallengeItem {
-    id: string
-    title: string
-    description: string
-    category: "Sports" | "Physical" | "Performance"
-    potAmount: string
-    timeLeft: string
-    isLive?: boolean
-    participantsCount: string
-    icon: any
-    iconBg: string
-    iconColor: string
-    avatars: string[]
+
+// Helper to resolve iconType string to a Lucide component
+const iconComponentMap: Record<string, any> = {
+    trophy: Trophy,
+    dumbbell: Dumbbell,
+    gamepad: Gamepad2,
+    sparkles: Sparkles,
 }
 
-const mockChallenges: ChallengeItem[] = [
-    {
-        id: "1",
-        title: "Lakers vs Celtics Tonight",
-        description: "Who will score more than 30 points in the final quarter?",
-        category: "Sports",
-        potAmount: "$2,450",
-        timeLeft: "ENDS 02:45:18",
-        isLive: true,
-        participantsCount: "+12",
-        icon: Trophy,
-        iconBg: "bg-indigo-500/15",
-        iconColor: "text-indigo-400",
-        avatars: [
-            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-        ],
-    },
-    {
-        id: "2",
-        title: "Sub-40 5 Mile Run",
-        description: "Can anyone complete 5 miles in under 40 minutes this weekend?",
-        category: "Physical",
-        potAmount: "$1,800",
-        timeLeft: "LAST 24 HRS",
-        isLive: false,
-        participantsCount: "+8",
-        icon: Dumbbell,
-        iconBg: "bg-purple-500/15",
-        iconColor: "text-purple-400",
-        avatars: [
-            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&auto=format&fit=crop&q=80",
-        ],
-    },
-    {
-        id: "3",
-        title: "Valorant Ace Tournament",
-        description: "Achieve a full team wipe (5K Ace) in a single competitive round.",
-        category: "Performance",
-        potAmount: "$3,200",
-        timeLeft: "ENDS 05:10:00",
-        isLive: true,
-        participantsCount: "+24",
-        icon: Gamepad2,
-        iconBg: "bg-pink-500/15",
-        iconColor: "text-pink-400",
-        avatars: [
-            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&auto=format&fit=crop&q=80",
-        ],
-    },
-    {
-        id: "4",
-        title: "Miami F1 Pole Position",
-        description: "Predict the driver who secures pole position in qualifying.",
-        category: "Sports",
-        potAmount: "$950",
-        timeLeft: "ENDS 12:00:00",
-        isLive: false,
-        participantsCount: "+5",
-        icon: Trophy,
-        iconBg: "bg-amber-500/15",
-        iconColor: "text-amber-400",
-        avatars: [
-            "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80",
-            "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80",
-        ],
-    },
-]
-
-const categories = ["SPORTS", "PHYSICAL", "PERFORMANCE"]
+const categories = ["All", "Sports", "Physical", "Performance"]
 
 export default function TrendingChellanges() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
-    const [selectedCategory, setSelectedCategory] = useState<string>("SPORTS")
+    const [selectedCategory, setSelectedCategory] = useState<string>("All")
     const [searchQuery, setSearchQuery] = useState("")
 
     const { isAuthenticated } = useAppSelector((state) => state.auth)
+    const challenges = useAppSelector((state) => state.challenges.challenges)
 
     const handleCreateClick = () => {
         if (isAuthenticated) {
@@ -142,9 +65,9 @@ export default function TrendingChellanges() {
         return () => clearTimeout(timer)
     }, [])
 
-    const filteredChallenges = mockChallenges.filter((challenge) => {
+    const filteredChallenges = challenges.filter((challenge) => {
         const matchesCategory =
-            !selectedCategory || challenge.category === selectedCategory
+            !selectedCategory || selectedCategory === "All" || challenge.category === selectedCategory
         const matchesSearch =
             challenge.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             challenge.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -163,7 +86,7 @@ export default function TrendingChellanges() {
             >
                 <AppSidebar variant="inset" />
                 <SidebarInset className="bg-background animate-in fade-in duration-500 ease-in-out w-full overflow-x-hidden">
-                    <Header loading={loading} />
+                    <Header title="CHALLENGES" loading={loading} />
 
                     <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 space-y-5 pb-24 max-w-md md:max-w-2xl mx-auto w-full">
                         {/* Search Input Section */}
@@ -198,11 +121,9 @@ export default function TrendingChellanges() {
                                         key={cat}
                                         variant={selectedCategory === cat ? "default" : "outline"}
                                         size="sm"
-                                        onClick={() =>
-                                            setSelectedCategory(selectedCategory === cat ? "" : cat)
-                                        }
-                                        className={`rounded-sm px-2 text-xs    transition-all shrink-0 ${selectedCategory === cat
-                                            ? "bg-primary text-primary-foreground shadow-sm"
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={`rounded-sm px-3 py-1 text-xs font-medium transition-all duration-300 ease-in-out shrink-0 ${selectedCategory === cat
+                                            ? "bg-primary text-primary-foreground shadow-sm scale-105"
                                             : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
                                             }`}
                                     >
@@ -315,7 +236,10 @@ export default function TrendingChellanges() {
                                                 <div
                                                     className={`h-10 w-10 rounded-xl ${challenge.iconBg} ${challenge.iconColor} flex items-center justify-center transition-transform group-hover:scale-105`}
                                                 >
-                                                    <challenge.icon className="h-5 w-5" />
+                                                {(() => {
+                                                    const IconComp = iconComponentMap[challenge.iconType] || Trophy
+                                                    return <IconComp className="h-5 w-5" />
+                                                })()}
                                                 </div>
                                                 <Badge
                                                     variant="secondary"
