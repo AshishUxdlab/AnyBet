@@ -24,7 +24,7 @@ import {
 import { onAuthStateChanged, updateProfile, type User } from "firebase/auth"
 import { doc, getDoc, setDoc } from "firebase/firestore"
 import { auth, db } from "@/Firebase/firebase"
-import Header from "../Header/Header"
+import Header from "../../Header/Header"
 
 // Sample avatar presets for quick selection
 const AVATAR_PRESETS = [

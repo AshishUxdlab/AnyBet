@@ -29,7 +29,7 @@ import {
 import { signOut, onAuthStateChanged, type User } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { auth, db } from "@/Firebase/firebase"
-import Header from "../Header/Header"
+import Header from "../../Header/Header"
 import { NotificationPreferencesModal } from "@/components/NotificationPreferencesModal"
 
 interface UserProfileData {

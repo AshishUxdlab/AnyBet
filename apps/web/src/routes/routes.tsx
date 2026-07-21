@@ -7,9 +7,9 @@ import TrendingChellangesPage from "@/pages/Categories/TrendingChellanges"
 import WalletPage from "@/pages/Wallets/Wallet"
 import DepositPage from "@/pages/Wallets/Deposit"
 import WithdrawalPage from "@/pages/Wallets/Withdrawal"
-import ProfilePage from "@/pages/Profile/Profile"
-import EditProfilePage from "@/pages/Profile/EditProfile"
-import ActivityPage from "@/pages/Activity/Activity"
+import ProfilePage from "@/pages/Profile/Profile/Profile"
+import EditProfilePage from "@/pages/Profile/Profile/EditProfile"
+import ActivityPage from "@/pages/Activity/Activity/Activity"
 import LoginPage from "@/pages/Login/Login"
 import SignUpPage from "@/pages/SignUp/SignUp"
 import HelpSupportPage from "@/pages/Help/HelpSupport"
@@ -54,6 +54,9 @@ export const router = createBrowserRouter([
     path: "/wallet",
     element: <WalletPage />,
   },
+
+
+
   {
     path: "/wallet/deposit",
     element: <DepositPage />,

@@ -32,7 +32,7 @@ interface ChallengeItem {
     id: string
     title: string
     description: string
-    category: "SPORTS" | "PHYSICAL" | "PERFORMANCE"
+    category: "Sports" | "Physical" | "Performance"
     potAmount: string
     timeLeft: string
     isLive?: boolean
@@ -48,7 +48,7 @@ const mockChallenges: ChallengeItem[] = [
         id: "1",
         title: "Lakers vs Celtics Tonight",
         description: "Who will score more than 30 points in the final quarter?",
-        category: "SPORTS",
+        category: "Sports",
         potAmount: "$2,450",
         timeLeft: "ENDS 02:45:18",
         isLive: true,
@@ -66,7 +66,7 @@ const mockChallenges: ChallengeItem[] = [
         id: "2",
         title: "Sub-40 5 Mile Run",
         description: "Can anyone complete 5 miles in under 40 minutes this weekend?",
-        category: "PHYSICAL",
+        category: "Physical",
         potAmount: "$1,800",
         timeLeft: "LAST 24 HRS",
         isLive: false,
@@ -83,7 +83,7 @@ const mockChallenges: ChallengeItem[] = [
         id: "3",
         title: "Valorant Ace Tournament",
         description: "Achieve a full team wipe (5K Ace) in a single competitive round.",
-        category: "PERFORMANCE",
+        category: "Performance",
         potAmount: "$3,200",
         timeLeft: "ENDS 05:10:00",
         isLive: true,
@@ -101,7 +101,7 @@ const mockChallenges: ChallengeItem[] = [
         id: "4",
         title: "Miami F1 Pole Position",
         description: "Predict the driver who secures pole position in qualifying.",
-        category: "SPORTS",
+        category: "Sports",
         potAmount: "$950",
         timeLeft: "ENDS 12:00:00",
         isLive: false,
@@ -185,12 +185,12 @@ export default function TrendingChellanges() {
                         </section>
 
                         {/* Category Filter Pills */}
-                        <section className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <section className="flex gap-2 overflow-x-auto  -mx-4 px-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {loading ? (
                                 <>
-                                    <Skeleton className="h-9 w-24 rounded-full shrink-0" />
-                                    <Skeleton className="h-9 w-28 rounded-full shrink-0" />
-                                    <Skeleton className="h-9 w-32 rounded-full shrink-0" />
+                                    <Skeleton className="h-9 w-24  shrink-0" />
+                                    <Skeleton className="h-9 w-28  shrink-0" />
+                                    <Skeleton className="h-9 w-32  shrink-0" />
                                 </>
                             ) : (
                                 categories.map((cat) => (
@@ -201,7 +201,7 @@ export default function TrendingChellanges() {
                                         onClick={() =>
                                             setSelectedCategory(selectedCategory === cat ? "" : cat)
                                         }
-                                        className={`rounded-sm px-2 text-xs font-semibold uppercase tracking-wider transition-all shrink-0 ${selectedCategory === cat
+                                        className={`rounded-sm px-2 text-xs    transition-all shrink-0 ${selectedCategory === cat
                                             ? "bg-primary text-primary-foreground shadow-sm"
                                             : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
                                             }`}

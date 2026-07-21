@@ -10,7 +10,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Avatar, AvatarImage, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Trophy, Star } from "lucide-react"
-import Header from "../Header/Header"
+import Header from "../../Header/Header"
 
 export default function Activity() {
     const [loading, setLoading] = useState(true)

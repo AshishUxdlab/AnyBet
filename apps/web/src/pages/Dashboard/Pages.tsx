@@ -178,15 +178,15 @@ export default function Page() {
                   <Card onClick={() => navigate("/challenges/create")} className="cursor-pointer hover:border-primary/50 transition-colors">
                     <CardContent className="">
                       <div className="flex justify-between items-start ">
-                        <div className="h-11 w-11 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                        <div className="h-10 w-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
                           <Trophy className="h-6 w-6" />
                         </div>
                         <div className="text-right">
-                          <div className="text-xl font-semibold">$12,400</div>
-                          <div className="text-xs text-muted-foreground uppercase">Volume Today</div>
+                          <div className="text-lg font-semibold">$12,400</div>
+                          <div className="text-xs text-muted-foreground ">Volume Today</div>
                         </div>
                       </div>
-                      <CardTitle className="text-xl">Elite Sports Prediction</CardTitle>
+                      <CardTitle className="text-lg">Elite Sports Prediction</CardTitle>
                     </CardContent>
                   </Card>
                 )}
