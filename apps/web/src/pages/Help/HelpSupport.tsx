@@ -54,7 +54,7 @@ export default function HelpSupport() {
     const [inputMessage, setInputMessage] = useState("")
     const [isTyping, setIsTyping] = useState(false)
 
-    // AnyBet-specific sample tickets
+    // Sample tickets
     const [tickets, setTickets] = useState<TicketItem[]>([
         {
             id: "TICK-4821",
@@ -83,35 +83,30 @@ export default function HelpSupport() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false)
-        }, 500)
+        }, 600)
         return () => clearTimeout(timer)
     }, [])
 
     const handleSendMessage = () => {
         if (!inputMessage.trim()) return
 
-        const userMsg = inputMessage.trim()
-        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        
-        setChatMessages(prev => [...prev, { sender: "user", text: userMsg, time: now }])
+        const userMsg = inputMessage
+        setChatMessages(prev => [...prev, { sender: "user", text: userMsg, time: "Just now" }])
         setInputMessage("")
         setIsTyping(true)
 
         setTimeout(() => {
             setIsTyping(false)
-            let botReply = "Thanks for reaching out! Our AnyBet moderation team is checking your request. Is there anything else about your active bets or wallet balance you'd like to check?"
-            const lowerMsg = userMsg.toLowerCase()
-            
-            if (lowerMsg.includes("deposit") || lowerMsg.includes("money") || lowerMsg.includes("add") || lowerMsg.includes("pay")) {
-                botReply = "AnyBet supports instant Deposits via Card, UPI & Crypto! Go to Wallet > Deposit. If funds were deducted but delayed, please provide the transaction reference."
-            } else if (lowerMsg.includes("withdraw") || lowerMsg.includes("cashout")) {
-                botReply = "Withdrawals are instant for PRO users ($10 minimum). Check your Wallet > Withdrawal tab for real-time status."
-            } else if (lowerMsg.includes("bet") || lowerMsg.includes("challenge") || lowerMsg.includes("win")) {
-                botReply = "Challenge pots are auto-verified via official live match stats. If an opponent didn't confirm or score is disputed, click 'Raise Ticket' to summon a referee."
+            let botReply = "Thanks for reaching out! Our team is reviewing your query."
+            const lower = userMsg.toLowerCase()
+            if (lower.includes("deposit") || lower.includes("wallet")) {
+                botReply = "For deposit issues, please allow up to 5 minutes for payment processing. If delayed, click 'Raise Ticket' below."
+            } else if (lower.includes("challenge") || lower.includes("win")) {
+                botReply = "Challenge settlements are processed automatically upon official match stats verification."
             }
 
-            setChatMessages(prev => [...prev, { sender: "bot", text: botReply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
-        }, 1100)
+            setChatMessages(prev => [...prev, { sender: "bot", text: botReply, time: "Just now" }])
+        }, 1200)
     }
 
     const handleCreateTicketSubmit = (e: React.FormEvent) => {
@@ -123,11 +118,11 @@ export default function HelpSupport() {
             subject: ticketSubject,
             category: ticketCategory,
             status: "Open",
-            date: "Just now",
-            lastUpdate: "Received by Support Moderator"
+            date: "Just Now",
+            lastUpdate: "Ticket submitted to moderation team"
         }
 
-        setTickets([newTicket, ...tickets])
+        setTickets(prev => [newTicket, ...prev])
         setTicketCreatedSuccess(true)
 
         setTimeout(() => {
@@ -135,7 +130,7 @@ export default function HelpSupport() {
             setIsCreateTicketOpen(false)
             setTicketSubject("")
             setTicketDesc("")
-        }, 1200)
+        }, 1500)
     }
 
     return (
@@ -149,29 +144,28 @@ export default function HelpSupport() {
                 }
             >
                 <AppSidebar variant="inset" />
-                <SidebarInset className="bg-background animate-in fade-in duration-300 ease-in-out">
-                    {/* Standard App Header */}
-                    <Header title="HELP & SUPPORT" loading={loading} />
+                <SidebarInset className="bg-background animate-in fade-in duration-500 ease-in-out min-h-screen flex flex-col">
+                    <Header loading={loading} />
 
-                    <main className="flex-1 overflow-auto p-4 md:p-6 pb-24 max-w-md mx-auto w-full space-y-6">
-                        {/* Top Back Navigation Bar (Matches EditProfile & Wallet pages) */}
-                        <div className="flex items-center justify-between">
+                    <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4 pb-24 max-w-md mx-auto w-full">
+                        {/* Back Navigation Bar */}
+                        <div className="flex items-center justify-between gap-2 pt-1">
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => navigate("/profile")}
-                                className="flex items-center gap-2 text-muted-foreground hover:text-foreground p-0 h-auto font-medium text-xs"
+                                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground p-0 h-auto font-medium text-xs"
                             >
                                 <ArrowLeft className="h-4 w-4" />
                                 <span>Back to Profile</span>
                             </Button>
-                            <Badge variant="secondary" className="text-xs font-mono">
+                            <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground border-border">
                                 SUPPORT
                             </Badge>
                         </div>
 
                         {loading ? (
-                            <div className="space-y-4">
+                            <div className="space-y-4 pt-2">
                                 <Skeleton className="h-28 w-full rounded-xl" />
                                 <div className="grid grid-cols-3 gap-2">
                                     <Skeleton className="h-20 rounded-xl" />
@@ -182,86 +176,86 @@ export default function HelpSupport() {
                             </div>
                         ) : (
                             <>
-                                {/* Hero Card */}
-                                <Card>
+                                {/* Hero Support Card */}
+                                <Card className="border-border/60">
                                     <CardContent className="p-4 space-y-3">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shrink-0">
                                                 <Headphones className="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <h2 className="text-sm font-bold text-foreground">AnyBet Support Hub</h2>
-                                                <p className="text-[11px] text-muted-foreground">Have a challenge dispute or wallet issue? We're here 24/7.</p>
+                                                <h2 className="text-xs font-bold uppercase tracking-wider text-foreground">AnyBet Support Hub</h2>
+                                                <p className="text-xs text-muted-foreground mt-0.5">Have a challenge dispute or wallet issue? We're here 24/7.</p>
                                             </div>
                                         </div>
 
                                         <Button
                                             onClick={() => setIsCreateTicketOpen(true)}
-                                            className="w-full h-9 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                                            className="w-full h-9 text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
                                         >
                                             <PlusCircle className="h-4 w-4 mr-1.5" /> Raise Support Ticket
                                         </Button>
                                     </CardContent>
                                 </Card>
 
-                                {/* Quick Support Actions */}
+                                {/* Quick Support Action Buttons */}
                                 <div className="grid grid-cols-3 gap-2">
                                     <Button
                                         variant="outline"
                                         onClick={() => setIsLiveChatOpen(true)}
-                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/40 hover:bg-muted/40 transition-all group"
                                     >
-                                        <div className="h-8 w-8 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
                                             <MessageSquare className="h-4 w-4" />
                                         </div>
                                         <span className="text-[11px] font-bold text-foreground">Live Chat</span>
-                                        <span className="text-[9px] text-emerald-500 font-medium">Instant</span>
+                                        <span className="text-[9px] text-primary font-bold uppercase">Instant</span>
                                     </Button>
 
                                     <Button
                                         variant="outline"
                                         onClick={() => setIsCreateTicketOpen(true)}
-                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/40 hover:bg-muted/40 transition-all group"
                                     >
-                                        <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
                                             <Ticket className="h-4 w-4" />
                                         </div>
                                         <span className="text-[11px] font-bold text-foreground">Raise Ticket</span>
-                                        <span className="text-[9px] text-muted-foreground font-medium">New Issue</span>
+                                        <span className="text-[9px] text-muted-foreground font-semibold uppercase">New Issue</span>
                                     </Button>
 
                                     <Button
                                         variant="outline"
                                         onClick={() => window.open("mailto:support@anybet.com")}
-                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                                        className="h-auto py-3 px-2 flex flex-col items-center gap-1.5 border-border/80 hover:border-primary/40 hover:bg-muted/40 transition-all group"
                                     >
-                                        <div className="h-8 w-8 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
                                             <Mail className="h-4 w-4" />
                                         </div>
-                                        <span className="text-[11px] font-bold text-foreground">Email Support</span>
-                                        <span className="text-[9px] text-muted-foreground font-medium">support@anybet</span>
+                                        <span className="text-[11px] font-bold text-foreground">Email</span>
+                                        <span className="text-[9px] text-muted-foreground font-semibold uppercase">support@anybet</span>
                                     </Button>
                                 </div>
 
-                                {/* Support Tickets List Section */}
-                                <div className="space-y-3">
+                                {/* Support Tickets Section */}
+                                <div className="space-y-3 pt-1">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
                                             <Ticket className="h-4 w-4 text-primary" /> My Support Tickets ({tickets.length})
                                         </span>
-                                        <Button size="sm" variant="ghost" onClick={() => setIsCreateTicketOpen(true)} className="h-7 text-xs font-semibold text-primary p-0">
-                                            + New Ticket
+                                        <Button size="sm" variant="ghost" onClick={() => setIsCreateTicketOpen(true)} className="h-7 text-xs font-bold text-primary p-0">
+                                            + NEW TICKET
                                         </Button>
                                     </div>
 
                                     {tickets.length === 0 ? (
-                                        <Card className="p-6 text-center space-y-3 border-dashed">
+                                        <Card className="p-6 text-center space-y-2 border-dashed">
                                             <Ticket className="h-8 w-8 text-muted-foreground mx-auto" />
                                             <p className="text-xs text-muted-foreground">You have no open support tickets.</p>
                                         </Card>
                                     ) : (
                                         tickets.map((t) => (
-                                            <Card key={t.id} className="border-border/60 hover:border-border/90 transition-all">
+                                            <Card key={t.id} className="border-border/60 hover:border-primary/40 transition-all">
                                                 <CardContent className="p-3.5 space-y-2.5">
                                                     <div className="flex items-start justify-between gap-2">
                                                         <div>
@@ -272,10 +266,8 @@ export default function HelpSupport() {
                                                             variant="outline"
                                                             className={`text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider shrink-0 ${
                                                                 t.status === "Resolved"
-                                                                    ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
-                                                                    : t.status === "In Review"
-                                                                    ? "bg-amber-500/10 text-amber-500 border-amber-500/30"
-                                                                    : "bg-blue-500/10 text-blue-500 border-blue-500/30"
+                                                                    ? "bg-primary/10 text-primary border-primary/30"
+                                                                    : "bg-secondary text-muted-foreground border-border"
                                                             }`}
                                                         >
                                                             {t.status}
@@ -294,32 +286,32 @@ export default function HelpSupport() {
                                     )}
                                 </div>
 
-                                {/* Banner Link to Dedicated FAQ Page */}
+                                {/* Link to Dedicated FAQ Page */}
                                 <Card
                                     onClick={() => navigate("/faq")}
-                                    className="bg-secondary/40 border-border/60 hover:border-primary/40 cursor-pointer transition-all p-4"
+                                    className="bg-card border-border/60 hover:border-primary/40 cursor-pointer transition-all p-4"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-9 w-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                                                <FileText className="h-5 w-5" />
+                                            <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                                <FileText className="h-4 w-4" />
                                             </div>
                                             <div>
-                                                <h4 className="text-xs font-bold text-foreground">AnyBet FAQ Knowledge Base</h4>
-                                                <p className="text-[10px] text-muted-foreground">Find instant answers to betting, wallet & challenge rules</p>
+                                                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">AnyBet FAQ Knowledge Base</h4>
+                                                <p className="text-[10px] text-muted-foreground mt-0.5">Find instant answers to betting, wallet & challenge rules</p>
                                             </div>
                                         </div>
                                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                     </div>
                                 </Card>
 
-                                {/* Direct Contact Info */}
+                                {/* Fair Play Info Card */}
                                 <Card className="bg-muted/30 border-border/60 p-4">
                                     <div className="space-y-2">
-                                        <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-foreground uppercase tracking-wider">
                                             <ShieldCheck className="h-4 w-4 text-primary" /> AnyBet Fair Play Guarantee
                                         </div>
-                                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                        <p className="text-xs text-muted-foreground leading-relaxed">
                                             All sports and performance challenge pots are monitored by live referees. Dispute tickets are reviewed within 15 minutes.
                                         </p>
                                     </div>
@@ -332,7 +324,6 @@ export default function HelpSupport() {
                     {isLiveChatOpen && (
                         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-center items-end sm:items-center p-0 sm:p-4">
                             <div className="w-full max-w-md bg-card border border-border sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col h-[85vh] sm:h-[600px] animate-in slide-in-from-bottom duration-300">
-                                {/* Chat Header */}
                                 <div className="p-3.5 border-b border-border bg-card flex items-center justify-between rounded-t-2xl">
                                     <div className="flex items-center gap-2.5">
                                         <div className="relative">
@@ -340,13 +331,13 @@ export default function HelpSupport() {
                                                 <AvatarImage src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80" />
                                                 <AvatarFallback><Bot className="h-5 w-5 text-primary" /></AvatarFallback>
                                             </Avatar>
-                                            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
+                                            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-card" />
                                         </div>
                                         <div>
                                             <h3 className="text-xs font-bold text-foreground flex items-center gap-1">
                                                 Sarah <Badge variant="secondary" className="text-[8px] py-0 px-1 font-semibold">AnyBet Bot</Badge>
                                             </h3>
-                                            <p className="text-[9px] text-emerald-500 font-medium">Online | Typical reply ~ instant</p>
+                                            <p className="text-[9px] text-primary font-medium">Online | Typical reply ~ instant</p>
                                         </div>
                                     </div>
                                     <Button
@@ -359,7 +350,6 @@ export default function HelpSupport() {
                                     </Button>
                                 </div>
 
-                                {/* Chat Messages Container */}
                                 <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/10">
                                     {chatMessages.map((msg, idx) => (
                                         <div
@@ -369,7 +359,7 @@ export default function HelpSupport() {
                                             <div
                                                 className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed shadow-sm ${
                                                     msg.sender === "user"
-                                                        ? "bg-primary text-primary-foreground rounded-br-none"
+                                                        ? "bg-primary text-primary-foreground rounded-br-none font-medium"
                                                         : "bg-card border border-border text-foreground rounded-bl-none"
                                                 }`}
                                             >
@@ -388,7 +378,6 @@ export default function HelpSupport() {
                                     )}
                                 </div>
 
-                                {/* Chat Input Footer */}
                                 <div className="p-3 border-t border-border bg-card flex items-center gap-2 rounded-b-2xl">
                                     <Input
                                         type="text"
@@ -418,7 +407,7 @@ export default function HelpSupport() {
                                 <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
                                     <div className="flex items-center gap-2">
                                         <Ticket className="h-4 w-4 text-primary" />
-                                        <h3 className="text-sm font-bold text-foreground">Raise AnyBet Support Ticket</h3>
+                                        <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Raise Support Ticket</h3>
                                     </div>
                                     <Button
                                         variant="ghost"
@@ -433,16 +422,16 @@ export default function HelpSupport() {
                                 <form onSubmit={handleCreateTicketSubmit} className="p-4 space-y-4">
                                     {ticketCreatedSuccess ? (
                                         <div className="py-8 text-center space-y-3">
-                                            <div className="h-12 w-12 rounded-full bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center border border-emerald-500/20">
+                                            <div className="h-12 w-12 rounded-full bg-primary/10 text-primary mx-auto flex items-center justify-center border border-primary/20">
                                                 <CheckCircle2 className="h-6 w-6" />
                                             </div>
-                                            <h4 className="text-sm font-bold text-foreground">Ticket Submitted!</h4>
+                                            <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Ticket Submitted!</h4>
                                             <p className="text-xs text-muted-foreground">AnyBet sports moderators will inspect your ticket shortly.</p>
                                         </div>
                                     ) : (
                                         <>
                                             <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Category</label>
+                                                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Category</label>
                                                 <select
                                                     value={ticketCategory}
                                                     onChange={(e) => setTicketCategory(e.target.value)}
@@ -457,7 +446,7 @@ export default function HelpSupport() {
                                             </div>
 
                                             <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Subject</label>
+                                                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Subject</label>
                                                 <Input
                                                     required
                                                     type="text"
@@ -469,7 +458,7 @@ export default function HelpSupport() {
                                             </div>
 
                                             <div className="space-y-1.5">
-                                                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Description</label>
+                                                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Description</label>
                                                 <textarea
                                                     required
                                                     rows={4}
@@ -485,13 +474,13 @@ export default function HelpSupport() {
                                                     type="button"
                                                     variant="outline"
                                                     onClick={() => setIsCreateTicketOpen(false)}
-                                                    className="h-9 text-xs"
+                                                    className="h-9 text-xs font-semibold"
                                                 >
                                                     Cancel
                                                 </Button>
                                                 <Button
                                                     type="submit"
-                                                    className="h-9 text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                                                    className="h-9 text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground hover:bg-primary/90"
                                                 >
                                                     Submit Ticket
                                                 </Button>
