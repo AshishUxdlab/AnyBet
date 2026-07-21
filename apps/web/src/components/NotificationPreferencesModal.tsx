@@ -57,7 +57,7 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
         <div>
           <SheetHeader className="p-0 pb-6 border-b border-border/40">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+              <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
                 <Bell className="h-5 w-5" />
               </div>
               <div>
@@ -78,7 +78,7 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
               <div className="space-y-3">
                 <label className="flex items-start justify-between p-3.5 rounded-xl bg-card border border-border/50 hover:border-border transition-colors cursor-pointer">
                   <div className="flex items-start gap-3">
-                    <Bell className="h-4 w-4 text-cyan-500 mt-0.5" />
+                    <Bell className="h-4 w-4 text-primary mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-foreground">In-App Push Notifications</p>
                       <p className="text-xs text-muted-foreground">Receive real-time popups while active</p>
@@ -161,7 +161,7 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
         <div className="pt-4 border-t border-border/40">
           <Button
             onClick={handleSave}
-            className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-medium gap-2"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium gap-2"
           >
             {saved ? (
               <>

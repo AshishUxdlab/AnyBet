@@ -85,7 +85,7 @@ export function NavUser({
                 <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/profile")}>
+              <DropdownMenuItem onClick={() => navigate("/notifications")}>
                 <BellIcon />
                 Notifications
               </DropdownMenuItem>
